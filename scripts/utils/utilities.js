@@ -1,1 +1,2 @@
-export const GetRandomRange = (min, max) => Math.random() * (max - min) + min;
+export const getRandomRange = (min, max) => Math.random() * (max - min) + min;
+export const getRandomColor = (saturation = 50, lightness = 50) => `hsl(${Math.random() * 360}, ${saturation}%, ${lightness}%)`;
