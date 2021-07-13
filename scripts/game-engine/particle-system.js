@@ -4,9 +4,10 @@ import { ctx, winHeight, winWidth } from "./config.js";
 export class Particle extends Entity
 {
     alpha = .5;
+    checkCondition;
 
     //TODO: Again. don't reinitialize values
-    constructor(spawnPosition = new Vector2(0, 0), speed = 1, radius = 5, color = 'red')
+    constructor(spawnPosition = new Vector2(0, 0), speed = 1, radius = 5, color = 'red', isTemporal = false)
     {
         super();
         this.position = spawnPosition;
@@ -15,13 +16,21 @@ export class Particle extends Entity
         this.color = color;
 
         this.velocity = new Vector2((Math.random() - 0.5) * speed, (Math.random() - 0.5) * speed);
+        this.checkCondition = isTemporal ? () =>
+        {
+            this.alpha -= 0.001;
+            if (this.alpha < 0) this.destroy();
+        } : () =>
+        {
+            //TODO: if we check for object inside of screen again, make method (utility)
+            if (this.position.x < 0 || this.position.x > winWidth || this.position.y < 0 || this.position.y > winHeight) this.destroy();
+        }
     }
 
     update()
     {
         this.position.add(this.velocity);
-        //TODO: if we check for object inside of screen again, make method
-        if (this.position.x < 0 || this.position.x > winWidth || this.position.y < 0 || this.position.y > winHeight) this.destroy();
+        this.checkCondition();
     }
 
     draw()
