@@ -1,8 +1,6 @@
 import { Player } from "./entities/player.js";
-import { pauseGame, resumeGame, startGame, Vector2 } from "./game-engine/game-engine.js";
+import { pauseGame, resumeGame, startGame} from "./game-engine/game-engine.js";
 import { Enemy } from "./entities/enemy.js";
-import { Particle } from "./game-engine/particle-system.js";
-import { getRandomColor, getRandomRange } from "./utils/utilities.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"), className = "")
 {
