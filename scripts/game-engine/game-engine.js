@@ -150,6 +150,7 @@ let backgroundStyle = "rgba(255,255,255, 1)";
 
 function animate()
 {
+    //TODO: understand why the fillstyle leaves marks on the screen
     ctx.fillStyle = backgroundStyle;
     ctx.fillRect(0, 0, winWidth, winHeight);
 

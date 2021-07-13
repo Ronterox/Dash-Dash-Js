@@ -5,7 +5,7 @@ import { Enemy } from "./entities/enemy.js";
 function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 {
     //Creation of player
-    const player = new Player(90, 'red');
+    const player = new Player(90, 'yellow');
 
     //Enemy generation
     const enemyCount = document.getElementById("enemy-counter");
@@ -21,14 +21,13 @@ function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
         for (let i = 0; i < number; i++)
         {
             const newEnemy = new Enemy(Math.random() * 5, player);
-            newEnemy.color = 'blue';
             newEnemy.updateKill = () => updateKillCounter();
             enemyCount.innerText = `Enemy Count: ${++enemyCounter}`
         }
     }
 
-    const milisecondsBtwWaves = timeBtwWaves * 1000;
-    const startSpawningEnemies = () => setInterval(() => spawnEnemies(enemiesPerWave), milisecondsBtwWaves);
+    const millisecondsBtwWaves = timeBtwWaves * 1000;
+    const startSpawningEnemies = () => setInterval(() => spawnEnemies(enemiesPerWave), millisecondsBtwWaves);
 
     //Set Pause button
     let enemySpawner = startSpawningEnemies();
@@ -56,4 +55,4 @@ function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 }
 
 setGameConfig(3, 5);
-startGame();
+startGame("rgba(50,50,50,0.45)");

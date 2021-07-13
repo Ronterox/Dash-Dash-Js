@@ -14,7 +14,9 @@ export class Enemy extends Entity
         this.speed = speed;
         this.playerRef = player;
         this.position = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
+
         this.updateKill = () => console.error("Enemy update kill method undefined");
+        this.color = `hsl(${Math.random() * 360}, 50%, 50%)`
     }
 
     awake()

@@ -4,16 +4,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>My first js Game!</title>
-        <link rel="stylesheet" type="text/css" href="index.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
         <script type="text/javascript" src="https://livejs.com/live.js"></script>
     </head>
     
     <body>
-        <h1 style="position: absolute; right: 10px; top: 0" id="fps-counter">Fps Counter</h1>
-        <div style="position: absolute; margin: 5px">
+        <h1 id="fps-counter" class="disable-select">Fps Counter</h1>
+        <div style="position: absolute; margin: 10px" class="disable-select">
             <h1 id="enemy-counter">Enemy Count: 0</h1>
             <h1 id="kill-counter">Enemies Killed: 0</h1>
-            <button style="width: 150px; height: 50px" id="pause-button">Pause</button>
+            <button id="pause-button">Pause</button>
         </div>
         <canvas id="game-canvas"></canvas>
     </body>
