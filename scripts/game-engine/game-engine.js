@@ -39,8 +39,10 @@ export class Entity extends GameObject
     position = new Vector2();
     radius = 30;
     color = 'red';
+
     velocity = new Vector2();
     speed = 1
+    isMoving = false;
 
     //TODO: don't double initialize parameters, with entity parent
     constructor(startPosition = new Vector2(), radius = 30, color = 'red', velocity = new Vector2(1, 1), speed = 1)
@@ -143,11 +145,15 @@ const startFpsCounting = () =>
 };
 
 let animationFrame;
+//TODO: unnecessary variable
+let backgroundStyle = "rgba(255,255,255, 1)";
 
 function animate()
 {
-    ctx.clearRect(0, 0, winWidth, winHeight);
+    ctx.fillStyle = backgroundStyle;
+    ctx.fillRect(0, 0, winWidth, winHeight);
 
+    //TODO: if necessary is faster to update and draw on same loop
     updateGameObjects();
     drawGameObjects();
 
@@ -156,11 +162,14 @@ function animate()
     animationFrame = requestAnimationFrame(animate);
 }
 
-export function startGame()
+export function startGame(style = "rgba(255,255,255, 1)")
 {
     initializeAllObjects();
     startFpsCounting();
+
+    backgroundStyle = style;
     gameStarted = true;
+
     animate();
 }
 
