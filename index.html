@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>My first js Game!</title>
+        <link rel="stylesheet" href="index.css">
+        <script type="text/javascript" src="https://livejs.com/live.js"></script>
+        <base href=".">
+    </head>
+    
+    <body>
+        <h1 style="position: absolute; right: 10px; top: 0" id="fps-counter">Fps Counter</h1>
+        <div style="position: absolute">
+            <h1 id="enemy-counter">Enemy Count: 0</h1>
+            <button style="width: 150px; height: 50px" id="pause-button">Pause</button>
+        </div>
+        <canvas id="game-canvas"></canvas>
+    </body>
+    
+    <script type="module" src="scripts/game-engine/config.js"></script>
+    <script type="module" src="scripts/game-engine/game-engine.js"></script>
+    <script type="module" src="scripts/game-engine/input.js"></script>
+    <script type="module" src="scripts/entities/player.js"></script>
+    <script type="module" src="scripts/main.js"></script>
+</html>

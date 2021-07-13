@@ -1,0 +1,1 @@
+export const GetRandomRange = (min, max) => Math.random() * (max - min) + min;
