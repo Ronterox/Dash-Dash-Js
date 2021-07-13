@@ -1,13 +1,18 @@
 import { ctx, winHeight, winWidth } from "./config.js";
 
 export const sceneObjects = [];
+//TODO: instead of being update by class GameObject, watch for changes on array is cooler
+const renderCounter = document.getElementById("render-counter");
+
+const updateRenderCounter = length => renderCounter.innerText = `Rendered Objects: ${length}`
+
 let gameStarted = false;
 
 export class GameObject
 {
     constructor()
     {
-        sceneObjects.push(this);
+        updateRenderCounter(sceneObjects.push(this));
         //TODO: instead of unreliable milliseconds create sceneObjects manager, whenever you push check for awake
         if (gameStarted) setTimeout(() => this.awake(), 100);
     }
@@ -31,6 +36,7 @@ export class GameObject
     {
         const gameObjectIndex = sceneObjects.indexOf(this);
         sceneObjects.splice(gameObjectIndex, 1);
+        updateRenderCounter(sceneObjects.length);
     }
 }
 
@@ -85,6 +91,11 @@ export class Vector2
         this.y = y;
     }
 
+    get asValue()
+    {
+        return new Vector2(this.x, this.y);
+    }
+
     add(otherVector)
     {
         this.x += otherVector.x;
@@ -111,16 +122,10 @@ export class Vector2
         this.y = y;
     }
 
-    static sqrMagnitude(vector)
-    {
-        return vector.x * vector.x + vector.y * vector.y;
-    }
+    static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
 
     //TODO: Obtain distance without using sqr root
-    static distance(leftVector, rightVector)
-    {
-        return Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
-    }
+    static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
 const filterStrength = 20;
