@@ -27,7 +27,7 @@ export class GameObject
     }
 
     //Empty method
-    draw()
+    draw(ctx)
     {
 
     }
@@ -35,6 +35,9 @@ export class GameObject
     destroy()
     {
         const gameObjectIndex = sceneObjects.indexOf(this);
+
+        if (gameObjectIndex === -1) return;
+
         sceneObjects.splice(gameObjectIndex, 1);
         updateRenderCounter(sceneObjects.length);
     }
@@ -49,6 +52,7 @@ export class Entity extends GameObject
     velocity = new Vector2();
     speed = 1
     isMoving = false;
+    angle = 0;
 
     //TODO: don't double initialize parameters, with entity parent
     constructor(startPosition = new Vector2(), radius = 30, color = 'red', velocity = new Vector2(1, 1), speed = 1)
@@ -61,7 +65,7 @@ export class Entity extends GameObject
         this.speed = speed;
     }
 
-    draw()
+    draw(ctx)
     {
         ctx.beginPath();
         ctx.arc(this.position.x, this.position.y, this.radius, 0, 7);
@@ -71,12 +75,12 @@ export class Entity extends GameObject
 
     moveToPosition(position)
     {
-        const playerPos = this.position;
+        const entityPosition = this.position;
 
-        const angle = Math.atan2(position.y - playerPos.y, position.x - playerPos.x);
+        this.angle = Math.atan2(position.y - entityPosition.y, position.x - entityPosition.x);
 
-        this.velocity.setValues(Math.cos(angle) * this.speed, Math.sin(angle) * this.speed);
-        playerPos.add(this.velocity);
+        this.velocity.setValues(Math.cos(this.angle) * this.speed, Math.sin(this.angle) * this.speed);
+        entityPosition.add(this.velocity);
     }
 }
 
@@ -139,7 +143,7 @@ function updateFps()
 }
 
 const updateGameObjects = () => sceneObjects.forEach(gameObject => gameObject.update());
-const drawGameObjects = () => sceneObjects.forEach(gameObject => gameObject.draw());
+const drawGameObjects = () => sceneObjects.forEach(gameObject => gameObject.draw(ctx));
 
 const initializeAllObjects = () => sceneObjects.forEach(gameObject => gameObject.awake());
 

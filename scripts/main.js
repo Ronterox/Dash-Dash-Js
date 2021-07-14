@@ -1,13 +1,12 @@
 import { Player } from "./entities/player.js";
-import { pauseGame, resumeGame, startGame} from "./game-engine/game-engine.js";
+import { pauseGame, resumeGame, startGame } from "./game-engine/game-engine.js";
 import { Enemy } from "./entities/enemy.js";
 
-function createButton(text = "Button", onClick = () => console.log("Pressed Button!"), className = "")
+function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
 {
     const btn = document.createElement("button");
     btn.innerHTML = text;
     btn.onclick = onClick;
-    btn.className = className;
     document.getElementById("developer-console").appendChild(btn);
 }
 
@@ -22,8 +21,6 @@ function setTestConfig()
 
     const killCount = document.getElementById("kill-counter");
     let killCounter = 0;
-
-    const updateKillCounter = () => killCount.innerText = `Enemies Killed: ${++killCounter}`;
 
     const pauseButton = document.getElementById("pause-button");
     let isPaused = false;
@@ -46,6 +43,13 @@ function setTestConfig()
 
     //Developer Options
     const enemies = [];
+
+    const updateKillCounter = enemy =>
+    {
+        killCount.innerText = `Enemies Killed: ${++killCounter}`;
+        const index = enemies.indexOf(enemy);
+        enemies.splice(index, 1);
+    }
 
     createButton("Spawn Enemy", () =>
     {
@@ -111,6 +115,6 @@ function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     };
 }
 
-// setTestConfig();
-setGameConfig(3, 5);
+setTestConfig();
+// setGameConfig(3, 5);
 startGame("rgba(50,50,50,0.45)");

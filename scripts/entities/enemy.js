@@ -7,19 +7,19 @@ import { getRandomColor, getRandomRange } from "../utils/utilities.js";
 const enemySizes = [10, 20, 30, 40];
 
 //TODO: Make audio manager
-const audio = new Audio("./media/audio/slash.wav");
+const audio = new Audio("./media/audio/slash.mp3");
+const backgroundMusic = new Audio("./media/audio/zenitsu-theme.mp3");
 
 //TODO: change this as fast as you can
-let firstKill = false;
-const playBackgroundMusicOnFirstKill = () =>
+let firstAttack = false;
+const playBackgroundMusicOnFirstAttack = () =>
 {
-    if (!firstKill)
+    if (!firstAttack)
     {
-        const backgroundMusic = new Audio("./media/audio/zenitsu-theme.mp3");
+        //TODO: Stop background music on pause, and pause on lose focus
         backgroundMusic.currentTime = 0;
-        backgroundMusic.volume = 0;
-        backgroundMusic.play().then(() => backgroundMusic.volume = 1);
-        firstKill = true;
+        backgroundMusic.play().then();
+        firstAttack = true;
     }
 }
 
@@ -27,7 +27,7 @@ export class Enemy extends Entity
 {
     playerRef;
     isMoving = false;
-    //Turn this into a global event caller with manager
+    //TODO: Turn this into a global event caller with manager
     updateKill;
 
     constructor(speed, player)
@@ -56,35 +56,43 @@ export class Enemy extends Entity
         const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < this.speed * .5 + player.radius + this.radius;
 
         if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
-        else if (player.isMoving && !player.isPointerDown) this.takeDamage(10);
+        else if (player.isMoving && !player.isPointerDown) this.shrinkEnemy(10);
     }
 
-    takeDamage(damage)
+    shrinkEnemy(size)
     {
-        this.reduceSize(damage);
-        if (this.radius < 1) this.kill();
+        const newSize = this.reduceSize(size);
+
+        if (newSize < 1) this.kill();
         else this.generateParticles();
 
+        //TODO: Encapsulate this functionality
         audio.currentTime = 0;
         audio.play().then();
+
+        playBackgroundMusicOnFirstAttack();
     }
 
     reduceSize(sizeReduce)
     {
-        this.radius -= sizeReduce;
+        let newSize = this.radius - sizeReduce;
+
+        //TODO: Install gsap correctly
+        gsap.to(this, { radius: newSize });
+
+        return newSize;
     }
 
     generateParticles(areTemporal = true)
     {
-        for (let i = 0; i < Math.floor(this.radius * 0.33); i++)
-        {
-            new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), getRandomColor(), areTemporal);
-        }
+        const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
+        const numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
+
+        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), getRandomColor(), areTemporal);
     }
 
     kill()
     {
-        playBackgroundMusicOnFirstKill();
         this.generateParticles(false);
         this.updateKill();
         this.destroy();
