@@ -25,6 +25,10 @@ export class Enemy extends Entity
     //TODO: Turn this into a global event caller with manager
     updateKill;
 
+    isBeingKnockBack = false;
+    knockBackForce = 10;
+    knockBackPosition = new Vector2();
+
     constructor(speed, player)
     {
         super();
@@ -48,11 +52,37 @@ export class Enemy extends Entity
         if (!this.isMoving) return;
 
         const player = this.playerRef;
-        const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < this.speed * .5 + player.radius + this.radius;
+        const characterNextMovementArea = this.speed * .5 + this.radius;
 
-        if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
-        //TODO: better detection of pointer down for damage
-        else if (player.isMoving && !player.isPointerDown) this.shrinkEnemy(10);
+        if (this.isBeingKnockBack)
+        {
+            this.moveToPosition(this.knockBackPosition, this.knockBackForce);
+            this.isBeingKnockBack = Vector2.distance(this.knockBackPosition, this.position) > characterNextMovementArea;
+        }
+        else
+        {
+            const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < characterNextMovementArea + player.radius;
+
+            if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
+            //TODO: better detection of pointer down for damage
+            else if (player.isMoving && !player.isPointerDown)
+            {
+                this.knockBackAwayFrom(player)
+                this.shrinkEnemy(10);
+            }
+        }
+    }
+
+    knockBackAwayFrom(character)
+    {
+        this.isBeingKnockBack = true;
+
+        const charX = character.position.x, charY = character.position.y;
+        const x = this.position.x, y = this.position.y;
+
+        const differenceX = charX - x, differenceY = charY - y;
+
+        this.knockBackPosition = new Vector2(x + differenceX * this.knockBackForce, y + differenceY * this.knockBackForce);
     }
 
     shrinkEnemy(size)
@@ -79,7 +109,7 @@ export class Enemy extends Entity
         const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
         const numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
-        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), getRandomColor(), areTemporal);
+        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), this.color, areTemporal);
     }
 
     kill()

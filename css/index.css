@@ -27,6 +27,13 @@ button
     color: white;
 }
 
+#version-text
+{
+    position: absolute;
+    bottom: 0;
+    left: 1%;
+}
+
 .disable-select
 {
     user-select: none; /* supported by Chrome and Opera */
