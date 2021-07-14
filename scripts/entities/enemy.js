@@ -70,10 +70,7 @@ export class Enemy extends Entity
     reduceSize(sizeReduce)
     {
         let newSize = this.radius - sizeReduce;
-
-        //TODO: Install gsap correctly
         gsap.to(this, { radius: newSize });
-
         return newSize;
     }
 
