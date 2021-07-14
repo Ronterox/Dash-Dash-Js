@@ -9,3 +9,5 @@ window.addEventListener("resize", () =>
     winWidth = canvas.width = window.innerWidth;
     winHeight = canvas.height = window.innerHeight;
 });
+
+//TODO: fix size for mobile devices of text

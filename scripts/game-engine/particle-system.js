@@ -1,5 +1,5 @@
 import { Entity, Vector2 } from "./game-engine.js";
-import { ctx, winHeight, winWidth } from "./config.js";
+import { winHeight, winWidth } from "./config.js";
 
 export class Particle extends Entity
 {
@@ -33,7 +33,7 @@ export class Particle extends Entity
         this.checkCondition();
     }
 
-    draw()
+    draw(ctx)
     {
         ctx.save();
 
