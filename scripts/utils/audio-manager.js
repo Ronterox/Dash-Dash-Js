@@ -1,3 +1,4 @@
+//TODO: working weird, FIX IT!, where is the manager of the audio manager
 export class AudioManager
 {
     static audios = {};

@@ -39,7 +39,7 @@ export class Player extends Entity
         if (!this.isMoving) return;
 
         if (this.isPointerDown) this.targetPos = mouseInput.mousePosition;
-        
+
         if (Vector2.distance(this.targetPos, this.position) > this.speed * .5) this.moveToPosition(this.targetPos);
         else this.isMoving = false;
     }

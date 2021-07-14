@@ -17,12 +17,32 @@ function setTestConfig()
     const player = new Player(90, 'yellow');
 
     //Enemy generation
-    const enemyCount = document.getElementById("enemy-counter");
     let enemyCounter = 0;
-
-    const killCount = document.getElementById("kill-counter");
     let killCounter = 0;
 
+    function spawnEnemies(number)
+    {
+        const enemyCount = document.getElementById("enemy-counter");
+        const killCount = document.getElementById("kill-counter");
+
+        const updateKillCounter = enemy =>
+        {
+            killCount.innerText = `Enemies Killed: ${++killCounter}`;
+            const index = enemies.indexOf(enemy);
+            enemies.splice(index, 1);
+        }
+
+        for (let i = 0; i < number; i++)
+        {
+            const newEnemy = new Enemy(Math.random() * 5, player);
+            newEnemy.updateKill = () => updateKillCounter();
+            enemies.push(newEnemy);
+
+            enemyCount.innerText = `Enemy Count: ${++enemyCounter}`;
+        }
+    }
+
+    //Setting pause button
     const pauseButton = document.getElementById("pause-button");
     let isPaused = false;
 
@@ -44,25 +64,14 @@ function setTestConfig()
         }
     };
 
+    const crashButton = document.getElementById("crasher-button");
+    crashButton.onclick = () => spawnEnemies(1000000000000);
+
     //Developer Options
     const enemies = [];
+    crashButton.hidden = true;
 
-    const updateKillCounter = enemy =>
-    {
-        killCount.innerText = `Enemies Killed: ${++killCounter}`;
-        const index = enemies.indexOf(enemy);
-        enemies.splice(index, 1);
-    }
-
-    createButton("Spawn Enemy", () =>
-    {
-        const newEnemy = new Enemy(Math.random() * 5, player);
-        newEnemy.updateKill = () => updateKillCounter();
-        enemies.push(newEnemy);
-
-        enemyCount.innerText = `Enemy Count: ${++enemyCounter}`;
-    })
-
+    createButton("Spawn Enemy", () => spawnEnemies(1));
     createButton("Clear Enemies", () => enemies.forEach(enemy => enemy.destroy()))
 }
 

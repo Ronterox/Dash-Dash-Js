@@ -51,6 +51,7 @@ export class Enemy extends Entity
         const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < this.speed * .5 + player.radius + this.radius;
 
         if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
+        //TODO: better detection of pointer down for damage
         else if (player.isMoving && !player.isPointerDown) this.shrinkEnemy(10);
     }
 
