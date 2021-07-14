@@ -2,13 +2,10 @@ import { Entity, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomRange } from "../utils/utilities.js";
+import { AudioManager, BACKGROUND_MUSIC, SLASH_SFX } from "../utils/audio-manager.js";
 
 //TODO: this is not wrong, but we need to improve it
 const enemySizes = [10, 20, 30, 40];
-
-//TODO: Make audio manager
-const audio = new Audio("./media/audio/slash.mp3");
-const backgroundMusic = new Audio("./media/audio/zenitsu-theme.mp3");
 
 //TODO: change this as fast as you can
 let firstAttack = false;
@@ -16,9 +13,7 @@ const playBackgroundMusicOnFirstAttack = () =>
 {
     if (!firstAttack)
     {
-        //TODO: Stop background music on pause, and pause on lose focus
-        backgroundMusic.currentTime = 0;
-        backgroundMusic.play().then();
+        AudioManager.playAudio(BACKGROUND_MUSIC);
         firstAttack = true;
     }
 }
@@ -66,9 +61,7 @@ export class Enemy extends Entity
         if (newSize < 1) this.kill();
         else this.generateParticles();
 
-        //TODO: Encapsulate this functionality
-        audio.currentTime = 0;
-        audio.play().then();
+        AudioManager.playAudio(SLASH_SFX);
 
         playBackgroundMusicOnFirstAttack();
     }
