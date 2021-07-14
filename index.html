@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>My first js Game!</title>
+        <title>Dash Dash js!</title>
         <link rel="stylesheet" type="text/css" href="css/index.css">
         <script type="text/javascript" src="https://livejs.com/live.js"></script>
     </head>
@@ -16,10 +16,14 @@
         <div style="position: absolute; margin-left: 10px" class="disable-select">
             <h1 id="enemy-counter">Enemy Count: 0</h1>
             <h2 id="kill-counter">Enemies Killed: 0</h2>
-            <button id="pause-button">Pause</button>
+            <div style="display: flex">
+                <button id="pause-button">Pause</button>
+                <button id="crasher-button">Crash Game</button>
+            </div>
         </div>
         <canvas id="game-canvas"></canvas>
+        <h4 id="version-text" class="disable-select">v0.2</h4>
     </body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.0/gsap.min.js"></script>
-    <script type="module" src="scripts/main.js"></script>
+    <script type="module" src="scripts/main-test.js"></script>
 </html>

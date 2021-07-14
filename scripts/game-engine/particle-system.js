@@ -3,7 +3,7 @@ import { winHeight, winWidth } from "./config.js";
 
 export class Particle extends Entity
 {
-    alpha = .5;
+    alpha = .2;
     checkCondition;
 
     //TODO: Again. don't reinitialize values

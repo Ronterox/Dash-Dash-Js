@@ -2,13 +2,10 @@ import { Entity, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomRange } from "../utils/utilities.js";
+import { AudioManager, BACKGROUND_MUSIC, SLASH_SFX } from "../utils/audio-manager.js";
 
 //TODO: this is not wrong, but we need to improve it
 const enemySizes = [10, 20, 30, 40];
-
-//TODO: Make audio manager
-const audio = new Audio("./media/audio/slash.mp3");
-const backgroundMusic = new Audio("./media/audio/zenitsu-theme.mp3");
 
 //TODO: change this as fast as you can
 let firstAttack = false;
@@ -16,9 +13,7 @@ const playBackgroundMusicOnFirstAttack = () =>
 {
     if (!firstAttack)
     {
-        //TODO: Stop background music on pause, and pause on lose focus
-        backgroundMusic.currentTime = 0;
-        backgroundMusic.play().then();
+        AudioManager.playAudio(BACKGROUND_MUSIC);
         firstAttack = true;
     }
 }
@@ -29,6 +24,10 @@ export class Enemy extends Entity
     isMoving = false;
     //TODO: Turn this into a global event caller with manager
     updateKill;
+
+    isBeingKnockBack = false;
+    knockBackForce = 10;
+    knockBackPosition = new Vector2();
 
     constructor(speed, player)
     {
@@ -53,10 +52,37 @@ export class Enemy extends Entity
         if (!this.isMoving) return;
 
         const player = this.playerRef;
-        const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < this.speed * .5 + player.radius + this.radius;
+        const characterNextMovementArea = this.speed * .5 + this.radius;
 
-        if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
-        else if (player.isMoving && !player.isPointerDown) this.shrinkEnemy(10);
+        if (this.isBeingKnockBack)
+        {
+            this.moveToPosition(this.knockBackPosition, this.knockBackForce);
+            this.isBeingKnockBack = Vector2.distance(this.knockBackPosition, this.position) > characterNextMovementArea;
+        }
+        else
+        {
+            const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < characterNextMovementArea + player.radius;
+
+            if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
+            //TODO: better detection of pointer down for damage
+            else if (player.isMoving && !player.isPointerDown)
+            {
+                this.knockBackAwayFrom(player)
+                this.shrinkEnemy(10);
+            }
+        }
+    }
+
+    knockBackAwayFrom(character)
+    {
+        this.isBeingKnockBack = true;
+
+        const charX = character.position.x, charY = character.position.y;
+        const x = this.position.x, y = this.position.y;
+
+        const differenceX = charX - x, differenceY = charY - y;
+
+        this.knockBackPosition = new Vector2(x + differenceX * this.knockBackForce, y + differenceY * this.knockBackForce);
     }
 
     shrinkEnemy(size)
@@ -66,9 +92,7 @@ export class Enemy extends Entity
         if (newSize < 1) this.kill();
         else this.generateParticles();
 
-        //TODO: Encapsulate this functionality
-        audio.currentTime = 0;
-        audio.play().then();
+        AudioManager.playAudio(SLASH_SFX);
 
         playBackgroundMusicOnFirstAttack();
     }
@@ -76,10 +100,7 @@ export class Enemy extends Entity
     reduceSize(sizeReduce)
     {
         let newSize = this.radius - sizeReduce;
-
-        //TODO: Install gsap correctly
         gsap.to(this, { radius: newSize });
-
         return newSize;
     }
 
@@ -88,7 +109,7 @@ export class Enemy extends Entity
         const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
         const numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
-        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), getRandomColor(), areTemporal);
+        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), this.color, areTemporal);
     }
 
     kill()

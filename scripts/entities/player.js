@@ -40,8 +40,6 @@ export class Player extends Entity
 
         if (this.isPointerDown) this.targetPos = mouseInput.mousePosition;
 
-        //TODO: fix this angle
-
         if (Vector2.distance(this.targetPos, this.position) > this.speed * .5) this.moveToPosition(this.targetPos);
         else this.isMoving = false;
     }
@@ -50,9 +48,10 @@ export class Player extends Entity
     {
         ctx.save();
 
-        const x = this.position.x;
-        const y = this.position.y;
-        const r = this.radius;
+        const
+            x = this.position.x,
+            y = this.position.y,
+            r = this.radius;
 
         //Rotate character to angle
         ctx.translate(x, y);
@@ -88,8 +87,7 @@ export class Player extends Entity
         drawSword('gray', 'black');
 
         // Specify how the hands should look
-        const ARMS_LENGTH = 20;
-        const ARMS_WIDTH = 4;
+        const ARMS_LENGTH = 20, ARMS_WIDTH = 4;
 
         ctx.beginPath()
         ctx.strokeStyle = this.color;

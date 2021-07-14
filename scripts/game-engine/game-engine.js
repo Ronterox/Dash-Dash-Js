@@ -73,13 +73,13 @@ export class Entity extends GameObject
         ctx.fill();
     }
 
-    moveToPosition(position)
+    moveToPosition(position, speed = this.speed)
     {
         const entityPosition = this.position;
 
         this.angle = Math.atan2(position.y - entityPosition.y, position.x - entityPosition.x);
 
-        this.velocity.setValues(Math.cos(this.angle) * this.speed, Math.sin(this.angle) * this.speed);
+        this.velocity.setValues(Math.cos(this.angle) * speed, Math.sin(this.angle) * speed);
         entityPosition.add(this.velocity);
     }
 }

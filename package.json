@@ -1,0 +1,7 @@
+{
+  "name": "dash-dash-js",
+  "version": "1.0.0",
+  "dependencies": {
+    "gsap": "^3.7.0"
+  }
+}
