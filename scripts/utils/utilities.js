@@ -1,2 +1,34 @@
-export const getRandomRange = (min, max) => Math.random() * (max - min) + min;
-export const getRandomColor = (saturation = 50, lightness = 50) => `hsl(${Math.random() * 360}, ${saturation}%, ${lightness}%)`;
+const getRandomColor = (saturation = 50, lightness = 50) => `hsl(${Math.random() * 360}, ${saturation}%, ${lightness}%)`;
+const getRandomFloat = (min, max) => Math.random() * (max - min + 1) + min;
+const getRandomInteger = (min, max) => Math.floor(getRandomFloat(min, max));
+
+//Faster without creation of another array
+Array.prototype.shiftFilter = function (predicate)
+{
+    let i, j;
+
+    for (i = 0, j = 0; i < this.length; ++i)
+    {
+        if (predicate(this[i]))
+        {
+            this[j] = this[i];
+            ++j;
+        }
+    }
+
+    while (j < this.length) this.pop();
+}
+
+//Swap and dissapear
+Array.prototype.swapDelete = function (index) { this[index] = this.pop(); }
+
+Array.prototype.clean = function () { this.shiftFilter(exist => exist); }
+
+Array.prototype.removeFrom = function (index, count) { this.splice(index, count); }
+
+export
+{
+    getRandomColor,
+    getRandomFloat,
+    getRandomInteger
+}

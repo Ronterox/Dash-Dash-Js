@@ -1,11 +1,26 @@
 import { Entity, Vector2 } from "../game-engine/game-engine.js";
 import { mouseInput } from "../game-engine/input.js";
+import { LightningTrail } from "../game-engine/particle-system.js";
+
+const trailSettings =
+    {
+        rgb: { r: 255, g: 255, b: 255 },
+        poolSize: 8,
+        shadow: 30,
+        thickness: 10,
+        opacity: 1,
+        fadeSpeed: 4
+    }
 
 export class Player extends Entity
 {
     isPointerDown = false;
     targetPos = new Vector2();
     angle = 0;
+
+    lightningTrailTop = new LightningTrail(trailSettings);
+    lightningTrailMiddle = new LightningTrail(trailSettings);
+    lightningTrailBottom = new LightningTrail(trailSettings);
 
     //TODO: create default values file like for color, number etc...
     constructor(speed, color)
@@ -40,7 +55,19 @@ export class Player extends Entity
 
         if (this.isPointerDown) this.targetPos = mouseInput.mousePosition;
 
-        if (Vector2.distance(this.targetPos, this.position) > this.speed * .5) this.moveToPosition(this.targetPos);
+        if (Vector2.distance(this.targetPos, this.position) > this.speed * .5)
+        {
+            const oldPos = this.position.asValue;
+
+            this.moveToPosition(this.targetPos);
+
+            const newPos = this.position.asValue;
+
+            const offset = 20;
+            this.lightningTrailMiddle.addTrail(oldPos, newPos);
+            this.lightningTrailTop.addTrail(new Vector2(oldPos.x + offset, oldPos.y + offset), new Vector2(newPos.x + offset, newPos.y + offset));
+            this.lightningTrailBottom.addTrail(new Vector2(oldPos.x - offset, oldPos.y - offset), new Vector2(newPos.x + offset, newPos.y + offset));
+        }
         else this.isMoving = false;
     }
 
@@ -48,21 +75,19 @@ export class Player extends Entity
     {
         ctx.save();
 
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "white";
+
         const
             x = this.position.x,
             y = this.position.y,
             r = this.radius;
 
-        //Rotate character to angle
-        ctx.translate(x, y);
-        ctx.rotate(this.angle);
-        ctx.translate(-x, -y);
+        //Rotate character to movement direction
+        this.rotate(ctx, this.angle, { x, y });
 
         // Draw a circle as the body
-        ctx.beginPath()
-        ctx.fillStyle = this.color;
-        ctx.arc(x, y, r, 0, 6.28)
-        ctx.fill()
+        super.draw(ctx);
 
         const drawSword = (edgeColor = 'red', handleColor = 'red') =>
         {

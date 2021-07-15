@@ -1,7 +1,7 @@
 const canvas = document.getElementById('game-canvas');
-export const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 
-export let winWidth = canvas.width = window.innerWidth,
+let winWidth = canvas.width = window.innerWidth,
     winHeight = canvas.height = window.innerHeight;
 
 window.addEventListener("resize", () =>
@@ -9,3 +9,10 @@ window.addEventListener("resize", () =>
     winWidth = canvas.width = window.innerWidth;
     winHeight = canvas.height = window.innerHeight;
 });
+
+export
+{
+    winHeight,
+    winWidth,
+    ctx
+}

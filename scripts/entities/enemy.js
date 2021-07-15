@@ -1,7 +1,7 @@
 import { Entity, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
-import { getRandomColor, getRandomRange } from "../utils/utilities.js";
+import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
 import { AudioManager, BACKGROUND_MUSIC, SLASH_SFX } from "../utils/audio-manager.js";
 
 //TODO: this is not wrong, but we need to improve it
@@ -23,11 +23,13 @@ export class Enemy extends Entity
     playerRef;
     isMoving = false;
     //TODO: Turn this into a global event caller with manager
-    updateKill;
+    onKill;
 
     isBeingKnockBack = false;
     knockBackForce = 10;
     knockBackPosition = new Vector2();
+
+    currentAnimation;
 
     constructor(speed, player)
     {
@@ -36,7 +38,7 @@ export class Enemy extends Entity
         this.playerRef = player;
         this.position = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
 
-        this.updateKill = () => console.error("Enemy update kill method undefined");
+        this.onKill = () => console.log("Enemy killed");
         this.color = getRandomColor(100, 50);
         //TODO: if we use again random object from array, create method (utility)
         this.radius = enemySizes[Math.floor(Math.random() * enemySizes.length)];
@@ -73,6 +75,19 @@ export class Enemy extends Entity
         }
     }
 
+    //TODO: if necessary more speed, fix this use of save for shadows
+    draw(ctx)
+    {
+        ctx.save();
+
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = this.color;
+
+        super.draw(ctx);
+
+        ctx.restore();
+    }
+
     knockBackAwayFrom(character)
     {
         this.isBeingKnockBack = true;
@@ -93,14 +108,21 @@ export class Enemy extends Entity
         else this.generateParticles();
 
         AudioManager.playAudio(SLASH_SFX);
-
         playBackgroundMusicOnFirstAttack();
+    }
+
+    resetAnimation()
+    {
+        if (this.currentAnimation) this.currentAnimation.kill();
     }
 
     reduceSize(sizeReduce)
     {
+        this.resetAnimation();
+
         let newSize = this.radius - sizeReduce;
-        gsap.to(this, { radius: newSize });
+        this.currentAnimation = gsap.to(this, { radius: newSize });
+
         return newSize;
     }
 
@@ -109,13 +131,14 @@ export class Enemy extends Entity
         const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
         const numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
-        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomRange(3, 8), this.color, areTemporal);
+        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), this.color, areTemporal);
     }
 
     kill()
     {
+        this.resetAnimation();
         this.generateParticles(false);
-        this.updateKill();
+        this.onKill();
         this.destroy();
     }
 }
