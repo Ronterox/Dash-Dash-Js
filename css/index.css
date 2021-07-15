@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
 body
 {
     color: white;
     background-color: black;
     padding: 0;
     margin: 0;
+    font-family: 'Righteous', cursive !important;
 }
 
 button
@@ -19,12 +22,14 @@ button
     position: absolute;
     right: 1%;
     top: 0;
+    visibility: hidden;
 }
 
 #crasher-button
 {
     background-color: red;
     color: white;
+    visibility: hidden;
 }
 
 #version-text

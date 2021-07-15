@@ -1,5 +1,5 @@
 //TODO: working weird, FIX IT!, where is the manager of the audio manager
-export class AudioManager
+class AudioManager
 {
     static audios = {};
     static audiosPlaying = [];
@@ -54,6 +54,7 @@ AudioManager.loadAudio("./media/audio/slash.mp3", SLASH_SFX);
 
 export
 {
+    AudioManager,
     BACKGROUND_MUSIC,
     SLASH_SFX
 };

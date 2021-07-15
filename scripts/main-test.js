@@ -1,7 +1,6 @@
 import { Player } from "./entities/player.js";
-import { pauseGame, resumeGame, startGame } from "./game-engine/game-engine.js";
-import { Enemy } from "./entities/enemy.js";
-import { AudioManager } from "./utils/audio-manager.js";
+import { startGame } from "./game-engine/game-engine.js";
+import { setPauseButton, spawnEnemies } from "./game-config.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
 {
@@ -11,68 +10,77 @@ function createButton(text = "Button", onClick = () => console.log("Pressed Butt
     document.getElementById("developer-console").appendChild(btn);
 }
 
-function setTestConfig()
+function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 {
-    //Creation of player
-    const player = new Player(90, 'yellow');
-
-    //Enemy generation
-    let enemyCounter = 0;
-    let killCounter = 0;
-
-    function spawnEnemies(number)
+    function spawnEnemy(quantity)
     {
-        const enemyCount = document.getElementById("enemy-counter");
-        const killCount = document.getElementById("kill-counter");
-
-        const updateKillCounter = enemy =>
+        spawnEnemies(quantity, player, 5, enemy =>
         {
-            killCount.innerText = `Enemies Killed: ${++killCounter}`;
             const index = enemies.indexOf(enemy);
             enemies.splice(index, 1);
-        }
 
-        for (let i = 0; i < number; i++)
-        {
-            const newEnemy = new Enemy(Math.random() * 5, player);
-            newEnemy.updateKill = () => updateKillCounter();
-            enemies.push(newEnemy);
-
-            enemyCount.innerText = `Enemy Count: ${++enemyCounter}`;
-        }
+        }, enemy => enemies.push(enemy))
     }
 
+    //Enemy Generation
+    const millisecondsBtwWaves = timeBtwWaves * 1000;
+    const startSpawningEnemies = () => setInterval(() => spawnEnemy(enemiesPerWave), millisecondsBtwWaves);
+
     //Setting pause button
-    const pauseButton = document.getElementById("pause-button");
-    let isPaused = false;
+    let enemySpawner = { value: 0 };
 
-    pauseButton.onclick = () =>
-    {
-        isPaused = !isPaused;
-
-        if (isPaused)
-        {
-            pauseGame();
-            AudioManager.pauseAudio();
-            pauseButton.innerText = "Unpause";
-        }
-        else
-        {
-            resumeGame();
-            AudioManager.resumeAudio();
-            pauseButton.innerText = "Pause";
-        }
-    };
+    setPauseButton(enemySpawner, startSpawningEnemies)
 
     const crashButton = document.getElementById("crasher-button");
     crashButton.onclick = () => spawnEnemies(1000000000000);
 
     //Developer Options
     const enemies = [];
-    crashButton.hidden = true;
 
-    createButton("Spawn Enemy", () => spawnEnemies(1));
-    createButton("Clear Enemies", () => enemies.forEach(enemy => enemy.destroy()))
+    const developerConsole = document.getElementById("developer-console");
+    developerConsole.style.visibility = "visible";
+
+    createButton("Spawn Enemy", () => spawnEnemy(1));
+    createButton("Clear Enemies", () => enemies.forEach(enemy => enemy.destroy()));
+    createButton("Start Spawning", () => enemySpawner = startSpawningEnemies());
+
+    //Override this for testing since is an interpreted language
+    const renderCounter = document.getElementById("render-counter");
+    let renderedObjects = 0;
+
+    function updateRenderCounter(increment)
+    {
+        renderCounter.innerText = `Rendered Objects: ${renderedObjects += increment}`;
+    }
+
+    Array.prototype.createGameObject = function (obj)
+    {
+        obj.sceneIndex = this.push(obj) - 1;
+        updateRenderCounter(1);
+    }
+
+    Array.prototype.removeGameObject = function (index)
+    {
+        this.swagOrderDelete(index);
+        updateRenderCounter(-1);
+    }
+
+    Array.prototype.clean = function ()
+    {
+        const oldLength = this.length;
+        this.shiftFilter(exist => exist);
+        updateRenderCounter(-(oldLength - this.length));
+    }
+
+    Array.prototype.removeFrom = function (index, count)
+    {
+        const oldLength = this.length;
+        this.splice(index, count);
+        updateRenderCounter(-(oldLength - this.length));
+    }
+
+    //Creation of player
+    const player = new Player(90, 'yellow');
 }
 
 setTestConfig();

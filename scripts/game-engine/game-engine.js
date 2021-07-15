@@ -1,18 +1,34 @@
 import { ctx, winHeight, winWidth } from "./config.js";
 
-export const sceneObjects = [];
-//TODO: instead of being update by class GameObject, watch for changes on array is cooler
-const renderCounter = document.getElementById("render-counter");
+const sceneObjects = [];
 
-const updateRenderCounter = length => renderCounter.innerText = `Rendered Objects: ${length}`
+Array.prototype.swagOrderDelete = function (index)
+{
+    const stop = this.length - 1;
+    while (index < stop)
+    {
+        this[index] = this[++index];
+        this[index].sceneIndex = index;
+    }
+    this.pop();
+}
+
+Array.prototype.createGameObject = function (obj) { obj.sceneIndex = this.push(obj) - 1;}
+
+Array.prototype.removeGameObject = function (index) { this.swagOrderDelete(index); }
 
 let gameStarted = false;
 
-export class GameObject
+class GameObject
 {
+    name;
+    sceneIndex;
+
     constructor()
     {
-        updateRenderCounter(sceneObjects.push(this));
+        this.name = this.constructor.name;
+        sceneObjects.createGameObject(this);
+
         //TODO: instead of unreliable milliseconds create sceneObjects manager, whenever you push check for awake
         if (gameStarted) setTimeout(() => this.awake(), 100);
     }
@@ -34,16 +50,18 @@ export class GameObject
 
     destroy()
     {
-        const gameObjectIndex = sceneObjects.indexOf(this);
+        sceneObjects.removeGameObject(this.sceneIndex);
+    }
 
-        if (gameObjectIndex === -1) return;
-
-        sceneObjects.splice(gameObjectIndex, 1);
-        updateRenderCounter(sceneObjects.length);
+    rotate(ctx, angle, { x, y } = new Vector2())
+    {
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.translate(-x, -y);
     }
 }
 
-export class Entity extends GameObject
+class Entity extends GameObject
 {
     position = new Vector2();
     radius = 30;
@@ -68,8 +86,10 @@ export class Entity extends GameObject
     draw(ctx)
     {
         ctx.beginPath();
+
         ctx.arc(this.position.x, this.position.y, this.radius, 0, 7);
         ctx.fillStyle = this.color;
+
         ctx.fill();
     }
 
@@ -84,7 +104,7 @@ export class Entity extends GameObject
     }
 }
 
-export class Vector2
+class Vector2
 {
     x = winWidth * .5;
     y = winHeight * .5;
@@ -172,7 +192,7 @@ function animate()
     animationFrame = requestAnimationFrame(animate);
 }
 
-export function startGame(style = "rgba(255,255,255, 1)")
+function startGame(style = "rgba(255,255,255, 1)")
 {
     initializeAllObjects();
     startFpsCounting();
@@ -180,9 +200,21 @@ export function startGame(style = "rgba(255,255,255, 1)")
     backgroundStyle = style;
     gameStarted = true;
 
-    animate();
+    requestAnimationFrame(animate);
 }
 
-export const pauseGame = () => cancelAnimationFrame(animationFrame);
+const pauseGame = () => cancelAnimationFrame(animationFrame);
 
-export const resumeGame = () => animate();
+const resumeGame = () => animate();
+
+export
+{
+    sceneObjects,
+    GameObject,
+    Entity,
+    Vector2,
+
+    startGame,
+    pauseGame,
+    resumeGame
+}
