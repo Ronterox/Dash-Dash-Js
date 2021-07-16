@@ -3,7 +3,7 @@
 body
 {
     color: white;
-    background-color: black;
+    background-color: rgb(50,50,50);
     padding: 0;
     margin: 0;
     font-family: 'Righteous', cursive !important;
@@ -13,8 +13,9 @@ button
 {
     width: 100%;
     height: 40px;
-    border-color: black;
-    border-radius: 5%;
+    background-color: cornflowerblue;
+    border: solid cornflowerblue;
+    border-radius: 25px;
 }
 
 #developer-console
@@ -37,6 +38,18 @@ button
     position: absolute;
     bottom: 0;
     left: 1%;
+}
+
+#start-screen
+{
+    background-color: white;
+    border-radius: 25px;
+    color: black;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    padding: 5%;
+    transform: translate(-50%, -50%);
 }
 
 .disable-select

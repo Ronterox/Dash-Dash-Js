@@ -1,8 +1,7 @@
 import { Player } from "./entities/player.js";
 import { startGame } from "./game-engine/game-engine.js";
-import { setPauseButton, spawnEnemies } from "./game-config.js";
+import { hideStartScreen, setPauseButton, spawnEnemies } from "./game-config.js";
 
-//TODO: make main-test and main equally evolve
 function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 {
     //Creation of player
@@ -18,5 +17,9 @@ function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     setPauseButton(enemySpawner, startSpawningEnemies);
 }
 
-setGameConfig(3, 5);
-startGame("rgba(50,50,50,0.45)");
+document.getElementById("start-game-button").onclick = () =>
+{
+    hideStartScreen();
+    setGameConfig(3, 5);
+    startGame("rgba(50,50,50,0.45)");
+}

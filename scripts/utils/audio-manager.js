@@ -1,4 +1,3 @@
-//TODO: working weird, FIX IT!, where is the manager of the audio manager
 class AudioManager
 {
     static audios = {};
@@ -28,8 +27,8 @@ class AudioManager
         if (!audio.paused) audio.currentTime = 0;
         else
         {
-            const index = this.audiosPlaying.push(audio);
-            audio.addEventListener('ended', () => this.audiosPlaying.splice(index, 1));
+            const index = this.audiosPlaying.push(audio) - 1;
+            audio.addEventListener('ended', () => this.audiosPlaying.swagOrderDelete(index));
         }
         audio.play();
     }

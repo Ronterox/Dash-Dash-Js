@@ -51,8 +51,11 @@ function spawnEnemies(number, playerRef, speedLimit = 5, onKill = enemy => conso
     }
 }
 
+const hideStartScreen = () => document.getElementById("start-screen").style.visibility = "hidden";
+
 export
 {
     setPauseButton,
-    spawnEnemies
+    spawnEnemies,
+    hideStartScreen
 }

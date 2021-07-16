@@ -8,7 +8,7 @@ Array.prototype.swagOrderDelete = function (index)
     while (index < stop)
     {
         this[index] = this[++index];
-        this[index].sceneIndex = index;
+        this[index].sceneIndex = index - 1;
     }
     this.pop();
 }
@@ -174,12 +174,9 @@ const startFpsCounting = () =>
 };
 
 let animationFrame;
-//TODO: unnecessary variable
-let backgroundStyle = "rgba(255,255,255, 1)";
 
-function animate()
+function animate(backgroundStyle)
 {
-    //TODO: understand why the fillstyle leaves marks on the screen
     ctx.fillStyle = backgroundStyle;
     ctx.fillRect(0, 0, winWidth, winHeight);
 
@@ -197,10 +194,9 @@ function startGame(style = "rgba(255,255,255, 1)")
     initializeAllObjects();
     startFpsCounting();
 
-    backgroundStyle = style;
     gameStarted = true;
 
-    requestAnimationFrame(animate);
+    animate(style);
 }
 
 const pauseGame = () => cancelAnimationFrame(animationFrame);
