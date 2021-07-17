@@ -35,7 +35,7 @@ const updateKillCounter = () => killCount.innerText = `Enemies Killed: ${++killC
 
 function spawnEnemies(number, playerRef, speedLimit = 5, onKill = enemy => console.info("Enemy Killed! " + enemy), onSpawn = enemy => console.info("Spawn " + enemy))
 {
-    for (let i = 0; i < number; i++)
+    while (number--)
     {
         const newEnemy = new Enemy(Math.random() * speedLimit, playerRef);
         newEnemy.onKill = () =>

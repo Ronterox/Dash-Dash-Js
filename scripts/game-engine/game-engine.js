@@ -159,7 +159,7 @@ class Vector2
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
-class Sprite
+class SpriteSheet
 {
     sprite = new Image();
     spriteWidth = 32;
@@ -168,7 +168,7 @@ class Sprite
     numberOfFrames = 1;
     currentFrame = 0;
 
-    constructor(name = "sprite", numberOfFrames = 1)
+    constructor(name = "bagel.jpg", numberOfFrames = 1)
     {
         this.sprite.src = SPRITES_PATH + name;
 
@@ -281,7 +281,7 @@ export
     GameObject,
     Entity,
     Vector2,
-    Sprite,
+    SpriteSheet,
 
     startGame,
     pauseGame,

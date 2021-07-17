@@ -1,4 +1,4 @@
-import { Entity, Sprite, Vector2 } from "../game-engine/game-engine.js";
+import { Entity, SpriteSheet, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
@@ -6,7 +6,6 @@ import { AudioManager, SLASH_SFX } from "../utils/audio-manager.js";
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
-const enemySprite = new Sprite("imp-anim.png", 7);
 
 export class Enemy extends Entity
 {
@@ -18,13 +17,14 @@ export class Enemy extends Entity
     knockBackForce = 10;
     knockBackPosition = new Vector2();
 
-    currentAnimation;
+    spriteSheet = new SpriteSheet();
 
     constructor(speed, player)
     {
         super();
         this.speed = speed;
         this.playerRef = player;
+        this.spriteSheet = new SpriteSheet("imp-anim.png", 7);
         this.position = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
 
         this.onKill = () => console.log("Enemy killed");
@@ -69,10 +69,10 @@ export class Enemy extends Entity
     {
         ctx.save();
 
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 12;
         ctx.shadowColor = this.color;
 
-        enemySprite.draw(ctx, this.position, 0, this.radius * 0.30);
+        this.spriteSheet.animate(ctx, this.position, this.radius * 0.30);
 
         ctx.restore();
     }
@@ -118,9 +118,9 @@ export class Enemy extends Entity
     generateParticles(areTemporal = true)
     {
         const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
-        const numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
+        let numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
-        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), this.color, areTemporal);
+        while (numberOfParticles--) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), this.color, areTemporal);
     }
 
     kill()
