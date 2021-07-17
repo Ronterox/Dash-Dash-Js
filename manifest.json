@@ -1,9 +1,12 @@
 {
-  "name": "Dash Dash Javascript",
+  "name": "Dash Dash Vanilla Javascript",
   "short_name": "Dash Dash JS",
-  "start_url": ".",
-  "display": "fullscreen",
+  "theme_color": "#f3d121",
   "background_color": "#323232",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "scope": "/",
+  "start_url": "/index.html",
   "description": "Dash and kill enemies on vanilla JS",
   "icons": [
     {
