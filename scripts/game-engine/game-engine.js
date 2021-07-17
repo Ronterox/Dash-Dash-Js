@@ -181,6 +181,7 @@ function animateFpsCount(backgroundStyle)
 
     updateGameObjects();
     drawGameObjects();
+
     updateFps();
 
     animationFrame = requestAnimationFrame(animateFpsCount);

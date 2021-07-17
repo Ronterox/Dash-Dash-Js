@@ -1,0 +1,20 @@
+{
+  "name": "Dash Dash Javascript",
+  "short_name": "Dash Dash JS",
+  "start_url": ".",
+  "display": "fullscreen",
+  "background_color": "#323232",
+  "description": "Dash and kill enemies on vanilla JS",
+  "icons": [
+    {
+      "src": "media/images/horizon-road192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "media/images/horizon-road512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
