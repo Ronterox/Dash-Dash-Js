@@ -28,7 +28,7 @@ class AudioManager
         else
         {
             const index = this.audiosPlaying.push(audio) - 1;
-            audio.addEventListener('ended', () => this.audiosPlaying.swagOrderDelete(index));
+            audio.addEventListener('ended', () => this.audiosPlaying.swapOrderDelete(index));
         }
         audio.play();
     }

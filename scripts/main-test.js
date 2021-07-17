@@ -1,5 +1,5 @@
 import { Player } from "./entities/player.js";
-import { startGame } from "./game-engine/game-engine.js";
+import { startGame, toBeDeleted } from "./game-engine/game-engine.js";
 import { hideStartScreen, setPauseButton, spawnEnemies } from "./game-config.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
@@ -85,4 +85,4 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
 hideStartScreen();
 setTestConfig();
-startGame("rgba(50,50,50,0.45)");
+startGame("rgba(50,50,50,0.45)", true);

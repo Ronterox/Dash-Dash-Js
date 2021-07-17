@@ -29,7 +29,6 @@ class GameObject
         this.name = this.constructor.name;
         sceneObjects.createGameObject(this);
 
-        //TODO: instead of unreliable milliseconds create sceneObjects manager, whenever you push check for awake
         if (gameStarted) setTimeout(() => this.awake(), 100);
     }
 
@@ -173,35 +172,46 @@ const startFpsCounting = () =>
     setInterval(() => fpsOut.innerHTML = (1000 / frameTime).toFixed(2) + " fps", 500);
 };
 
-let animationFrame;
+let animationFrame, animationLoop;
 
-function animate(backgroundStyle)
+function animateFpsCount(backgroundStyle)
 {
     ctx.fillStyle = backgroundStyle;
     ctx.fillRect(0, 0, winWidth, winHeight);
 
-    //TODO: if necessary is faster to update and draw on same loop
+    updateGameObjects();
+    drawGameObjects();
+    updateFps();
+
+    animationFrame = requestAnimationFrame(animateFpsCount);
+}
+
+function justAnimate(backgroundStyle)
+{
+    ctx.fillStyle = backgroundStyle;
+    ctx.fillRect(0, 0, winWidth, winHeight);
+
     updateGameObjects();
     drawGameObjects();
 
-    updateFps();
-
-    animationFrame = requestAnimationFrame(animate);
+    animationFrame = requestAnimationFrame(justAnimate);
 }
 
-function startGame(style = "rgba(255,255,255, 1)")
+function startGame(style = "rgba(255,255,255, 1)", countFps = false)
 {
     initializeAllObjects();
     startFpsCounting();
 
     gameStarted = true;
 
-    animate(style);
+    animationLoop = countFps ? () => animateFpsCount(style) : () => justAnimate(style);
+
+    animationLoop();
 }
 
 const pauseGame = () => cancelAnimationFrame(animationFrame);
 
-const resumeGame = () => animate();
+const resumeGame = () => animationLoop();
 
 export
 {
