@@ -71,7 +71,6 @@ class GameObject
 class Entity extends GameObject
 {
     position = new Vector2();
-    radius = 30;
     color = DEFAULT_COLOR;
 
     velocity = new Vector2();
@@ -92,10 +91,12 @@ class Entity extends GameObject
 
     draw(ctx)
     {
+        const { x, y } = this.position;
+
         ctx.beginPath();
 
-        ctx.arc(this.position.x, this.position.y, this.radius, 0, 7);
         ctx.fillStyle = this.color;
+        ctx.arc(x, y, this.radius, 0, 6.28);
 
         ctx.fill();
     }
@@ -118,8 +119,8 @@ class Vector2
 
     constructor(x = winWidth * .5, y = winHeight * .5)
     {
-        this.x = x;
-        this.y = y;
+        this.x = Math.floor(x);
+        this.y = Math.floor(y);
     }
 
     get asValue()
@@ -149,8 +150,8 @@ class Vector2
 
     setValues(x, y)
     {
-        this.x = x;
-        this.y = y;
+        this.x = Math.floor(x);
+        this.y = Math.floor(y);
     }
 
     static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
@@ -178,8 +179,7 @@ class SpriteSheet
         this.numberOfFrames = numberOfFrames;
     }
 
-    //TODO: improve drawing performance
-    draw(ctx, position = new Vector2(), frame = 0, sizeMultiplier = 1)
+    draw(ctx, { x, y }, frame = 0, sizeMultiplier = 1)
     {
         const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
         const frameOffset = frame * this.spriteWidth;
@@ -190,7 +190,7 @@ class SpriteSheet
             frameOffset, 0,
             this.spriteWidth, this.spriteHeight,
             //Drawing on Canvas
-            position.x, position.y,
+            x, y,
             size.width, size.height);
     }
 

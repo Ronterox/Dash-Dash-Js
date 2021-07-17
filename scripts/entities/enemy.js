@@ -30,7 +30,7 @@ export class Enemy extends Entity
         this.onKill = () => console.log("Enemy killed");
         this.color = getRandomColor(100, 50);
         //TODO: if we use again random object from array, create method (utility)
-        this.radius = enemySizes[Math.floor(Math.random() * enemySizes.length)];
+        this.radius = enemySizes.getRandomValue();
     }
 
     awake()
@@ -72,7 +72,11 @@ export class Enemy extends Entity
         ctx.shadowBlur = 12;
         ctx.shadowColor = this.color;
 
-        this.spriteSheet.animate(ctx, this.position, this.radius * 0.30);
+        const { x, y } = this.position;
+
+        this.spriteSheet.draw(ctx, { x: x - 100, y: y - 100 }, 0, Math.floor(this.radius * 0.30));
+
+        super.draw(ctx);
 
         ctx.restore();
     }

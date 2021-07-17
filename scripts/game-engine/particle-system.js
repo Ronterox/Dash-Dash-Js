@@ -39,10 +39,7 @@ class Particle extends Entity
         ctx.save();
 
         ctx.globalAlpha = this.alpha;
-        ctx.beginPath();
-        ctx.arc(this.position.x, this.position.y, this.radius, 0, 7);
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        super.draw(ctx);
 
         ctx.restore();
     }

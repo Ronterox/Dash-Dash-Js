@@ -36,6 +36,8 @@ Array.prototype.clean = function () { this.shiftFilter(exist => exist); }
 
 Array.prototype.removeFrom = function (index, count) { this.splice(index, count); }
 
+Array.prototype.getRandomValue = function () { return this[Math.floor(Math.random() * this.length)]; }
+
 export
 {
     getRandomColor,
