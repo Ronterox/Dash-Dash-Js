@@ -41,7 +41,7 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     developerConsole.style.visibility = "visible";
 
     createButton("Spawn Enemy", () => spawnEnemy(1));
-    createButton("Clear Enemies", () => enemies.forEach(enemy => enemy.destroy()));
+    createButton("Clear Enemies", () => enemies.fastLoop(enemy => enemy.destroy()));
     createButton("Start Spawning", () => enemySpawner = startSpawningEnemies());
 
     //Override this for testing since is an interpreted language
@@ -86,3 +86,4 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 hideStartScreen();
 setTestConfig();
 startGame("rgba(50,50,50,0.45)", true);
+

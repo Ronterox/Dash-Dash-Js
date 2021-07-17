@@ -1,6 +1,8 @@
-import { ctx, DEFAULT_COLOR, winHeight, winWidth } from "./config.js";
+import { ctx, DEFAULT_COLOR, SPRITES_PATH, winHeight, winWidth } from "./config.js";
 
 const sceneObjects = [];
+//Set it to pixel art
+ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
 
 Array.prototype.swagOrderDelete = function (index)
 {
@@ -16,6 +18,12 @@ Array.prototype.swagOrderDelete = function (index)
 Array.prototype.createGameObject = function (obj) { obj.sceneIndex = this.push(obj) - 1;}
 
 Array.prototype.removeGameObject = function (index) { this.swagOrderDelete(index); }
+
+Array.prototype.fastLoop = function (action)
+{
+    let length = this.length;
+    while (length--) action(this[length], length);
+}
 
 let gameStarted = false;
 
@@ -151,6 +159,59 @@ class Vector2
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
+class Sprite
+{
+    sprite = new Image();
+    spriteWidth = 32;
+    spriteHeight = 32;
+
+    numberOfFrames = 1;
+    currentFrame = 0;
+
+    constructor(name = "sprite", numberOfFrames = 1)
+    {
+        this.sprite.src = SPRITES_PATH + name;
+
+        this.spriteHeight = this.sprite.naturalHeight;
+        this.spriteWidth = this.sprite.naturalWidth / numberOfFrames;
+
+        this.numberOfFrames = numberOfFrames;
+    }
+
+    //TODO: improve drawing performance
+    draw(ctx, position = new Vector2(), frame = 0, sizeMultiplier = 1)
+    {
+        const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
+        const frameOffset = frame * this.spriteWidth;
+
+        ctx.drawImage(
+            //Setting Frame
+            this.sprite,
+            frameOffset, 0,
+            this.spriteWidth, this.spriteHeight,
+            //Drawing on Canvas
+            position.x, position.y,
+            size.width, size.height);
+    }
+
+    animate(ctx, position = new Vector2(), sizeMultiplier = 1)
+    {
+        const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
+        const frameOffset = this.currentFrame * this.spriteWidth;
+
+        ctx.drawImage(
+            //Setting Frame
+            this.sprite,
+            frameOffset, 0,
+            this.spriteWidth, this.spriteHeight,
+            //Drawing on Canvas
+            position.x, position.y,
+            size.width, size.height);
+
+        this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
+    }
+}
+
 const filterStrength = 20;
 let frameTime = 0, lastLoop = new Date, thisLoop;
 
@@ -161,10 +222,10 @@ function updateFps()
     lastLoop = thisLoop;
 }
 
-const updateGameObjects = () => sceneObjects.forEach(gameObject => gameObject.update());
-const drawGameObjects = () => sceneObjects.forEach(gameObject => gameObject.draw(ctx));
+const updateGameObjects = () => sceneObjects.fastLoop(gameObject => gameObject.update());
+const drawGameObjects = () => sceneObjects.fastLoop(gameObject => gameObject.draw(ctx));
 
-const initializeAllObjects = () => sceneObjects.forEach(gameObject => gameObject.awake());
+const initializeAllObjects = () => sceneObjects.fastLoop(gameObject => gameObject.awake());
 
 const startFpsCounting = () =>
 {
@@ -220,6 +281,7 @@ export
     GameObject,
     Entity,
     Vector2,
+    Sprite,
 
     startGame,
     pauseGame,

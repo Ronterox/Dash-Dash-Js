@@ -37,12 +37,12 @@ class AudioManager
 
     static pauseAudio()
     {
-        this.audiosPlaying.forEach(audio => audio.pause());
+        this.audiosPlaying.fastLoop(audio => audio.pause());
     }
 
     static resumeAudio()
     {
-        this.audiosPlaying.forEach(audio => audio.play());
+        this.audiosPlaying.fastLoop(audio => audio.play());
     }
 }
 

@@ -134,7 +134,7 @@ class LightningTrail extends GameObject
 
         if (length > this.size) this.trail.removeFrom(0, length - this.size);
 
-        this.trail.forEach((piece, index) =>
+        this.trail.fastLoop((piece, index) =>
         {
             piece.fadeALittle()
             if (piece.opacity <= 0) this.trail[index] = null;
@@ -147,7 +147,7 @@ class LightningTrail extends GameObject
     {
         ctx.save();
 
-        this.trail.forEach(piece => piece.draw(ctx));
+        this.trail.fastLoop(piece => piece.draw(ctx));
 
         ctx.restore();
     }
