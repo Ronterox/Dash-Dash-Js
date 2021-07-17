@@ -22,6 +22,16 @@ Array.prototype.shiftFilter = function (predicate)
 //Swap and dissapear
 Array.prototype.swapDelete = function (index) { this[index] = this.pop(); }
 
+Array.prototype.swapOrderDelete = function (index)
+{
+    const stop = this.length - 1;
+    while (index < stop)
+    {
+        this[index] = this[++index];
+    }
+    this.pop();
+}
+
 Array.prototype.clean = function () { this.shiftFilter(exist => exist); }
 
 Array.prototype.removeFrom = function (index, count) { this.splice(index, count); }

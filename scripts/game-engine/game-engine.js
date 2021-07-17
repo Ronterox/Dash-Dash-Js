@@ -8,7 +8,7 @@ Array.prototype.swagOrderDelete = function (index)
     while (index < stop)
     {
         this[index] = this[++index];
-        this[index].sceneIndex = index;
+        this[index].sceneIndex = index - 1;
     }
     this.pop();
 }
@@ -29,7 +29,6 @@ class GameObject
         this.name = this.constructor.name;
         sceneObjects.createGameObject(this);
 
-        //TODO: instead of unreliable milliseconds create sceneObjects manager, whenever you push check for awake
         if (gameStarted) setTimeout(() => this.awake(), 100);
     }
 
@@ -173,39 +172,47 @@ const startFpsCounting = () =>
     setInterval(() => fpsOut.innerHTML = (1000 / frameTime).toFixed(2) + " fps", 500);
 };
 
-let animationFrame;
-//TODO: unnecessary variable
-let backgroundStyle = "rgba(255,255,255, 1)";
+let animationFrame, animationLoop;
 
-function animate()
+function animateFpsCount(backgroundStyle)
 {
-    //TODO: understand why the fillstyle leaves marks on the screen
     ctx.fillStyle = backgroundStyle;
     ctx.fillRect(0, 0, winWidth, winHeight);
 
-    //TODO: if necessary is faster to update and draw on same loop
     updateGameObjects();
     drawGameObjects();
 
     updateFps();
 
-    animationFrame = requestAnimationFrame(animate);
+    animationFrame = requestAnimationFrame(animateFpsCount);
 }
 
-function startGame(style = "rgba(255,255,255, 1)")
+function justAnimate(backgroundStyle)
+{
+    ctx.fillStyle = backgroundStyle;
+    ctx.fillRect(0, 0, winWidth, winHeight);
+
+    updateGameObjects();
+    drawGameObjects();
+
+    animationFrame = requestAnimationFrame(justAnimate);
+}
+
+function startGame(style = "rgba(255,255,255, 1)", countFps = false)
 {
     initializeAllObjects();
     startFpsCounting();
 
-    backgroundStyle = style;
     gameStarted = true;
 
-    requestAnimationFrame(animate);
+    animationLoop = countFps ? () => animateFpsCount(style) : () => justAnimate(style);
+
+    animationLoop();
 }
 
 const pauseGame = () => cancelAnimationFrame(animationFrame);
 
-const resumeGame = () => animate();
+const resumeGame = () => animationLoop();
 
 export
 {

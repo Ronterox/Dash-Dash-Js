@@ -28,11 +28,8 @@ function setPauseButton(enemySpawner, startSpawningEnemies)
     };
 }
 
-let enemyCounter = 0;
-let killCounter = 0;
-
-const enemyCount = document.getElementById("enemy-counter");
-const killCount = document.getElementById("kill-counter");
+let enemyCounter = 0, killCounter = 0;
+const enemyCount = document.getElementById("enemy-counter"), killCount = document.getElementById("kill-counter");
 
 const updateKillCounter = () => killCount.innerText = `Enemies Killed: ${++killCounter}`;
 
@@ -51,8 +48,11 @@ function spawnEnemies(number, playerRef, speedLimit = 5, onKill = enemy => conso
     }
 }
 
+const hideStartScreen = () => document.getElementById("start-screen").style.visibility = "hidden";
+
 export
 {
     setPauseButton,
-    spawnEnemies
+    spawnEnemies,
+    hideStartScreen
 }

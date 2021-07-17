@@ -4,10 +4,8 @@ import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
 import { AudioManager, BACKGROUND_MUSIC, SLASH_SFX } from "../utils/audio-manager.js";
 
-//TODO: this is not wrong, but we need to improve it
 const enemySizes = [10, 20, 30, 40];
 
-//TODO: change this as fast as you can
 let firstAttack = false;
 const playBackgroundMusicOnFirstAttack = () =>
 {
