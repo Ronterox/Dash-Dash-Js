@@ -19,7 +19,7 @@ Array.prototype.shiftFilter = function (predicate)
     while (j < this.length) this.pop();
 }
 
-//Swap and dissapear
+//Swap and disappear
 Array.prototype.swapDelete = function (index) { this[index] = this.pop(); }
 
 Array.prototype.swapOrderDelete = function (index)

@@ -1,5 +1,5 @@
 import { pauseGame, resumeGame } from "./game-engine/game-engine.js";
-import { AudioManager } from "./utils/audio-manager.js";
+import { AudioManager, BACKGROUND_MUSIC } from "./utils/audio-manager.js";
 import { Enemy } from "./entities/enemy.js";
 
 function setPauseButton(enemySpawner, startSpawningEnemies)
@@ -50,9 +50,25 @@ function spawnEnemies(number, playerRef, speedLimit = 5, onKill = enemy => conso
 
 const hideStartScreen = () => document.getElementById("start-screen").style.visibility = "hidden";
 
+let firstAttack = false;
+const playBackgroundMusicOnFirstAttack = () =>
+{
+    if (!firstAttack)
+    {
+        AudioManager.playAudio(BACKGROUND_MUSIC);
+        firstAttack = true;
+    }
+}
+
+const PLAYER_COLOR = 'yellow', PLAYER_SPEED = 90;
+
 export
 {
     setPauseButton,
     spawnEnemies,
-    hideStartScreen
+    hideStartScreen,
+    playBackgroundMusicOnFirstAttack,
+
+    PLAYER_COLOR,
+    PLAYER_SPEED
 }

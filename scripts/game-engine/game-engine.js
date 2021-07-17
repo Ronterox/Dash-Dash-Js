@@ -1,4 +1,4 @@
-import { ctx, winHeight, winWidth } from "./config.js";
+import { ctx, DEFAULT_COLOR, winHeight, winWidth } from "./config.js";
 
 const sceneObjects = [];
 
@@ -64,7 +64,7 @@ class Entity extends GameObject
 {
     position = new Vector2();
     radius = 30;
-    color = 'red';
+    color = DEFAULT_COLOR;
 
     velocity = new Vector2();
     speed = 1
@@ -72,7 +72,7 @@ class Entity extends GameObject
     angle = 0;
 
     //TODO: don't double initialize parameters, with entity parent
-    constructor(startPosition = new Vector2(), radius = 30, color = 'red', velocity = new Vector2(1, 1), speed = 1)
+    constructor(startPosition = new Vector2(), radius = 30, color = DEFAULT_COLOR, velocity = new Vector2(1, 1), speed = 1)
     {
         super();
         this.position = startPosition;

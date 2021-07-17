@@ -1,26 +1,19 @@
 import { Entity, Vector2 } from "../game-engine/game-engine.js";
-import { winHeight, winWidth } from "../game-engine/config.js";
+import { SPRITES_PATH, winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
-import { AudioManager, BACKGROUND_MUSIC, SLASH_SFX } from "../utils/audio-manager.js";
+import { AudioManager, SLASH_SFX } from "../utils/audio-manager.js";
+import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
 
-let firstAttack = false;
-const playBackgroundMusicOnFirstAttack = () =>
-{
-    if (!firstAttack)
-    {
-        AudioManager.playAudio(BACKGROUND_MUSIC);
-        firstAttack = true;
-    }
-}
+const enemySprite = new Image();
+enemySprite.src = SPRITES_PATH + "imp-anim.png";
 
 export class Enemy extends Entity
 {
     playerRef;
     isMoving = false;
-    //TODO: Turn this into a global event caller with manager
     onKill;
 
     isBeingKnockBack = false;

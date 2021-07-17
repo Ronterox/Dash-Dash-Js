@@ -1,10 +1,11 @@
 import { Entity, Vector2 } from "../game-engine/game-engine.js";
 import { mouseInput } from "../game-engine/input.js";
 import { LightningTrail } from "../game-engine/particle-system.js";
+import { DEFAULT_COLOR, DEFAULT_RGB } from "../game-engine/config.js";
 
 const trailSettings =
     {
-        rgb: { r: 255, g: 255, b: 255 },
+        rgb: DEFAULT_RGB,
         poolSize: 8,
         shadow: 30,
         thickness: 10,
@@ -22,8 +23,7 @@ export class Player extends Entity
     lightningTrailMiddle = new LightningTrail(trailSettings);
     lightningTrailBottom = new LightningTrail(trailSettings);
 
-    //TODO: create default values file like for color, number etc...
-    constructor(speed, color)
+    constructor(speed = 50, color = DEFAULT_COLOR)
     {
         super();
         this.speed = speed;
@@ -32,18 +32,16 @@ export class Player extends Entity
 
     awake()
     {
-        document.addEventListener("click", clickEvent =>
-        {
-            this.targetPos = new Vector2(clickEvent.clientX, clickEvent.clientY)
-            this.isMoving = true;
+        this.targetPos = mouseInput.mousePosition;
 
-            // const sfxLightning = new Audio("./media/audio/lightning-strike.mp3")
-            // sfxLightning.play().then();
-        });
-        document.addEventListener("pointerdown", () => this.isPointerDown = true);
-        document.addEventListener("pointerup", () => this.isPointerDown = false);
+        const game = document;
 
-        document.addEventListener("mousemove", () =>
+        game.addEventListener("click", () => this.isMoving = true);
+
+        game.addEventListener("pointerdown", () => this.isPointerDown = true);
+        game.addEventListener("pointerup", () => this.isPointerDown = false);
+
+        game.addEventListener("mousemove", () =>
         {
             if (this.isPointerDown) this.isMoving = true;
         })
@@ -53,22 +51,26 @@ export class Player extends Entity
     {
         if (!this.isMoving) return;
 
-        if (this.isPointerDown) this.targetPos = mouseInput.mousePosition;
-
         if (Vector2.distance(this.targetPos, this.position) > this.speed * .5)
         {
-            const oldPos = this.position.asValue;
-
-            this.moveToPosition(this.targetPos);
-
-            const newPos = this.position.asValue;
-
-            const offset = 20;
-            this.lightningTrailMiddle.addTrail(oldPos, newPos);
-            this.lightningTrailTop.addTrail(new Vector2(oldPos.x + offset, oldPos.y + offset), new Vector2(newPos.x + offset, newPos.y + offset));
-            this.lightningTrailBottom.addTrail(new Vector2(oldPos.x - offset, oldPos.y - offset), new Vector2(newPos.x + offset, newPos.y + offset));
+            if (this.isPointerDown) this.moveToPosition(this.targetPos);
+            else this.moveWithTrail();
         }
         else this.isMoving = false;
+    }
+
+    moveWithTrail()
+    {
+        const oldPos = this.position.asValue;
+
+        this.moveToPosition(this.targetPos);
+
+        const newPos = this.position.asValue;
+
+        const offset = 20;
+        this.lightningTrailMiddle.addTrail(oldPos, newPos);
+        this.lightningTrailTop.addTrail(new Vector2(oldPos.x + offset, oldPos.y + offset), new Vector2(newPos.x + offset, newPos.y + offset));
+        this.lightningTrailBottom.addTrail(new Vector2(oldPos.x - offset, oldPos.y - offset), new Vector2(newPos.x + offset, newPos.y + offset));
     }
 
     draw(ctx)
