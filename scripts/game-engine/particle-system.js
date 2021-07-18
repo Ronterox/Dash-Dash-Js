@@ -1,5 +1,6 @@
 import { Entity, GameObject, Vector2 } from "./game-engine.js";
-import { winHeight, winWidth } from "./config.js";
+import { DEFAULT_COLOR, DEFAULT_RGB, winHeight, winWidth } from "./config.js";
+import { getRandomFloat } from "../utils/utilities.js";
 
 class Particle extends Entity
 {
@@ -7,7 +8,7 @@ class Particle extends Entity
     checkCondition;
 
     //TODO: Again. don't reinitialize values
-    constructor(spawnPosition = new Vector2(0, 0), speed = 1, radius = 5, color = 'red', isTemporal = false)
+    constructor(spawnPosition = new Vector2(0, 0), speed = 1, radius = 5, color = DEFAULT_COLOR, isTemporal = false)
     {
         super();
         this.position = spawnPosition;
@@ -15,7 +16,7 @@ class Particle extends Entity
         this.radius = radius;
         this.color = color;
 
-        this.velocity = new Vector2((Math.random() - 0.5) * speed, (Math.random() - 0.5) * speed);
+        this.velocity = new Vector2(getRandomFloat(-speed, speed), getRandomFloat(-speed, speed));
         this.checkCondition = isTemporal ? () =>
         {
             this.alpha -= 0.001;
@@ -38,10 +39,7 @@ class Particle extends Entity
         ctx.save();
 
         ctx.globalAlpha = this.alpha;
-        ctx.beginPath();
-        ctx.arc(this.position.x, this.position.y, this.radius, 0, 7);
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        super.draw(ctx);
 
         ctx.restore();
     }
@@ -58,9 +56,9 @@ class LightningLine
     shadow = 0;
     fadeSpeed = 1;
 
-    rgb = { r: 255, g: 255, b: 255 };
+    rgb = DEFAULT_RGB;
 
-    constructor(startPos = new Vector2(), endPos = new Vector2(), { r = 255, g = 255, b = 255 }, shadow = 0, thickness = 5, opacity = 1, fadeSpeed = 1)
+    constructor(startPos = new Vector2(), endPos = new Vector2(), rgb = DEFAULT_RGB, shadow = 0, thickness = 5, opacity = 1, fadeSpeed = 1)
     {
         this.start = startPos;
         this.end = endPos;
@@ -68,7 +66,7 @@ class LightningLine
         this.opacity = opacity;
         this.shadow = shadow;
         this.fadeSpeed = fadeSpeed;
-        this.rgb = { r, g, b };
+        this.rgb = rgb;
     }
 
     fadeALittle()
@@ -100,7 +98,7 @@ class LightningLine
 
 class LightningTrail extends GameObject
 {
-    rgb = { r: 255, g: 255, b: 255 };
+    rgb = DEFAULT_RGB;
     size = 5;
 
     thickness = 5;
@@ -110,7 +108,7 @@ class LightningTrail extends GameObject
 
     trail = [];
 
-    constructor({ rgb = { r: 255, g: 255, b: 255 }, poolSize = 5, shadow = 0, thickness = 5, opacity = 1, fadeSpeed = 1 })
+    constructor({ rgb = DEFAULT_RGB, poolSize = 5, shadow = 0, thickness = 5, opacity = 1, fadeSpeed = 1 })
     {
         super();
 
@@ -133,7 +131,7 @@ class LightningTrail extends GameObject
 
         if (length > this.size) this.trail.removeFrom(0, length - this.size);
 
-        this.trail.forEach((piece, index) =>
+        this.trail.fastLoop((piece, index) =>
         {
             piece.fadeALittle()
             if (piece.opacity <= 0) this.trail[index] = null;
@@ -146,7 +144,7 @@ class LightningTrail extends GameObject
     {
         ctx.save();
 
-        this.trail.forEach(piece => piece.draw(ctx));
+        this.trail.fastLoop(piece => piece.draw(ctx));
 
         ctx.restore();
     }

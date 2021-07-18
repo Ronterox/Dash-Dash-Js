@@ -1,45 +1,36 @@
-import { Entity, Vector2 } from "../game-engine/game-engine.js";
+import { Entity, SpriteSheet, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
-import { AudioManager, BACKGROUND_MUSIC, SLASH_SFX } from "../utils/audio-manager.js";
+import { AudioManager, SLASH_SFX } from "../utils/audio-manager.js";
+import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
-
-let firstAttack = false;
-const playBackgroundMusicOnFirstAttack = () =>
-{
-    if (!firstAttack)
-    {
-        AudioManager.playAudio(BACKGROUND_MUSIC);
-        firstAttack = true;
-    }
-}
 
 export class Enemy extends Entity
 {
     playerRef;
     isMoving = false;
-    //TODO: Turn this into a global event caller with manager
     onKill;
 
     isBeingKnockBack = false;
     knockBackForce = 10;
     knockBackPosition = new Vector2();
 
-    currentAnimation;
+    spriteSheet = new SpriteSheet();
 
     constructor(speed, player)
     {
         super();
         this.speed = speed;
         this.playerRef = player;
+        this.spriteSheet = new SpriteSheet("imp-anim.png", 7);
         this.position = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
 
         this.onKill = () => console.log("Enemy killed");
         this.color = getRandomColor(100, 50);
         //TODO: if we use again random object from array, create method (utility)
-        this.radius = enemySizes[Math.floor(Math.random() * enemySizes.length)];
+        this.radius = enemySizes.getRandomValue();
     }
 
     awake()
@@ -78,8 +69,12 @@ export class Enemy extends Entity
     {
         ctx.save();
 
-        ctx.shadowBlur = 30;
+        ctx.shadowBlur = 12;
         ctx.shadowColor = this.color;
+
+        const { x, y } = this.position;
+
+        this.spriteSheet.draw(ctx, { x: x - 100, y: y - 100 }, 0, Math.floor(this.radius * 0.30));
 
         super.draw(ctx);
 
@@ -127,9 +122,9 @@ export class Enemy extends Entity
     generateParticles(areTemporal = true)
     {
         const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
-        const numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
+        let numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
-        for (let i = 0; i < numberOfParticles; i++) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), this.color, areTemporal);
+        while (numberOfParticles--) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), this.color, areTemporal);
     }
 
     kill()

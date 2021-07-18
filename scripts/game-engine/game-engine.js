@@ -1,6 +1,8 @@
-import { ctx, winHeight, winWidth } from "./config.js";
+import { ctx, DEFAULT_COLOR, SPRITES_PATH, winHeight, winWidth } from "./config.js";
 
 const sceneObjects = [];
+//Set it to pixel art
+ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
 
 Array.prototype.swagOrderDelete = function (index)
 {
@@ -16,6 +18,12 @@ Array.prototype.swagOrderDelete = function (index)
 Array.prototype.createGameObject = function (obj) { obj.sceneIndex = this.push(obj) - 1;}
 
 Array.prototype.removeGameObject = function (index) { this.swagOrderDelete(index); }
+
+Array.prototype.fastLoop = function (action)
+{
+    let length = this.length;
+    while (length--) action(this[length], length);
+}
 
 let gameStarted = false;
 
@@ -63,8 +71,7 @@ class GameObject
 class Entity extends GameObject
 {
     position = new Vector2();
-    radius = 30;
-    color = 'red';
+    color = DEFAULT_COLOR;
 
     velocity = new Vector2();
     speed = 1
@@ -72,7 +79,7 @@ class Entity extends GameObject
     angle = 0;
 
     //TODO: don't double initialize parameters, with entity parent
-    constructor(startPosition = new Vector2(), radius = 30, color = 'red', velocity = new Vector2(1, 1), speed = 1)
+    constructor(startPosition = new Vector2(), radius = 30, color = DEFAULT_COLOR, velocity = new Vector2(1, 1), speed = 1)
     {
         super();
         this.position = startPosition;
@@ -84,10 +91,12 @@ class Entity extends GameObject
 
     draw(ctx)
     {
+        const { x, y } = this.position;
+
         ctx.beginPath();
 
-        ctx.arc(this.position.x, this.position.y, this.radius, 0, 7);
         ctx.fillStyle = this.color;
+        ctx.arc(x, y, this.radius, 0, 6.28);
 
         ctx.fill();
     }
@@ -110,8 +119,8 @@ class Vector2
 
     constructor(x = winWidth * .5, y = winHeight * .5)
     {
-        this.x = x;
-        this.y = y;
+        this.x = Math.floor(x);
+        this.y = Math.floor(y);
     }
 
     get asValue()
@@ -141,14 +150,66 @@ class Vector2
 
     setValues(x, y)
     {
-        this.x = x;
-        this.y = y;
+        this.x = Math.floor(x);
+        this.y = Math.floor(y);
     }
 
     static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
 
     //TODO: Obtain distance without using sqr root
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
+}
+
+class SpriteSheet
+{
+    sprite = new Image();
+    spriteWidth = 32;
+    spriteHeight = 32;
+
+    numberOfFrames = 1;
+    currentFrame = 0;
+
+    constructor(name = "bagel.jpg", numberOfFrames = 1)
+    {
+        this.sprite.src = SPRITES_PATH + name;
+
+        this.spriteHeight = this.sprite.naturalHeight;
+        this.spriteWidth = this.sprite.naturalWidth / numberOfFrames;
+
+        this.numberOfFrames = numberOfFrames;
+    }
+
+    draw(ctx, { x, y }, frame = 0, sizeMultiplier = 1)
+    {
+        const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
+        const frameOffset = frame * this.spriteWidth;
+
+        ctx.drawImage(
+            //Setting Frame
+            this.sprite,
+            frameOffset, 0,
+            this.spriteWidth, this.spriteHeight,
+            //Drawing on Canvas
+            x, y,
+            size.width, size.height);
+    }
+
+    animate(ctx, position = new Vector2(), sizeMultiplier = 1)
+    {
+        const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
+        const frameOffset = this.currentFrame * this.spriteWidth;
+
+        ctx.drawImage(
+            //Setting Frame
+            this.sprite,
+            frameOffset, 0,
+            this.spriteWidth, this.spriteHeight,
+            //Drawing on Canvas
+            position.x, position.y,
+            size.width, size.height);
+
+        this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
+    }
 }
 
 const filterStrength = 20;
@@ -161,10 +222,10 @@ function updateFps()
     lastLoop = thisLoop;
 }
 
-const updateGameObjects = () => sceneObjects.forEach(gameObject => gameObject.update());
-const drawGameObjects = () => sceneObjects.forEach(gameObject => gameObject.draw(ctx));
+const updateGameObjects = () => sceneObjects.fastLoop(gameObject => gameObject.update());
+const drawGameObjects = () => sceneObjects.fastLoop(gameObject => gameObject.draw(ctx));
 
-const initializeAllObjects = () => sceneObjects.forEach(gameObject => gameObject.awake());
+const initializeAllObjects = () => sceneObjects.fastLoop(gameObject => gameObject.awake());
 
 const startFpsCounting = () =>
 {
@@ -220,6 +281,7 @@ export
     GameObject,
     Entity,
     Vector2,
+    SpriteSheet,
 
     startGame,
     pauseGame,

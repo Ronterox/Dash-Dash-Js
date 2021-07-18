@@ -1,3 +1,5 @@
+import { AUDIOS_PATH } from "../game-engine/config.js";
+
 class AudioManager
 {
     static audios = {};
@@ -35,12 +37,12 @@ class AudioManager
 
     static pauseAudio()
     {
-        this.audiosPlaying.forEach(audio => audio.pause());
+        this.audiosPlaying.fastLoop(audio => audio.pause());
     }
 
     static resumeAudio()
     {
-        this.audiosPlaying.forEach(audio => audio.play());
+        this.audiosPlaying.fastLoop(audio => audio.play());
     }
 }
 
@@ -48,12 +50,13 @@ const BACKGROUND_MUSIC = "background";
 const SLASH_SFX = "slash";
 
 //Loading sounds
-AudioManager.loadAudio("./media/audio/zenitsu-theme.mp3", BACKGROUND_MUSIC);
-AudioManager.loadAudio("./media/audio/slash.mp3", SLASH_SFX);
+AudioManager.loadAudio(AUDIOS_PATH + "zenitsu-theme.mp3", BACKGROUND_MUSIC);
+AudioManager.loadAudio(AUDIOS_PATH + "slash.mp3", SLASH_SFX);
 
 export
 {
-    AudioManager,
     BACKGROUND_MUSIC,
-    SLASH_SFX
+    SLASH_SFX,
+
+    AudioManager
 };
