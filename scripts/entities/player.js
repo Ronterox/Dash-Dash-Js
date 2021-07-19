@@ -33,9 +33,17 @@ export class Player extends Entity
         this.targetPos = mouseInput.mousePosition;
         const game = document;
 
-        game.addEventListener("click", () => this.isMoving = true);
+        game.addEventListener("click", (click) =>
+        {
+            this.isMoving = true
+            this.targetPos = new Vector2(click.clientX, click.clientY);
+        });
 
-        game.addEventListener("pointerdown", () => this.isPointerDown = true);
+        game.addEventListener("pointerdown", () =>
+        {
+            this.isPointerDown = true
+            this.targetPos = mouseInput.mousePosition;
+        });
         game.addEventListener("pointerup", () => this.isPointerDown = false);
 
         game.addEventListener("mousemove", () =>

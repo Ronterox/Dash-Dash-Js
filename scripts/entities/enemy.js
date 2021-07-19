@@ -129,7 +129,7 @@ export class Enemy extends Entity
 
     generateParticles(areTemporal = true)
     {
-        const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
+        const numberOfParticlesPerSize = Math.floor(this._size.width * 0.33);
         let numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
         const transform = this.transform;

@@ -6,13 +6,11 @@ let winWidth = canvas.width = window.innerWidth.valueOf(),
 
 window.addEventListener("resize", () =>
 {
-    const style = canvas.style;
-
     winWidth = window.innerWidth.valueOf();
     winHeight = window.innerHeight.valueOf();
 
-    style.width = winWidth;
-    style.height = winHeight;
+    canvas.style.width = winWidth;
+    canvas.style.height = winHeight;
 
     ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
 });

@@ -2,16 +2,20 @@ import { Entity, GameObject, Transform, Vector2 } from "./game-engine.js";
 import { DEFAULT_COLOR, DEFAULT_RGB, winHeight, winWidth } from "./config.js";
 import { getRandomFloat } from "../utils/utilities.js";
 
-class Particle extends Entity
+class Particle extends GameObject
 {
     alpha = .2;
+    _radius
+    transform;
+
     checkTemporalCondition;
 
     constructor(spawnPosition = new Vector2(0, 0), speed = 1, radius = 5, color = DEFAULT_COLOR, isTemporal = false)
     {
-        super(new Transform(spawnPosition, 0, color, speed), radius);
-
+        super();
+        this.transform = new Transform(spawnPosition, 0, color, speed);
         this.transform.velocity = new Vector2(getRandomFloat(-speed, speed), getRandomFloat(-speed, speed));
+        this._radius = radius;
 
         this.checkTemporalCondition = isTemporal ? () =>
         {
@@ -21,7 +25,6 @@ class Particle extends Entity
         {
             //TODO: if we check for object inside of screen again, make method (utility)
             const { x, y } = this.transform.position;
-
             if (x < 0 || x > winWidth || y < 0 || y > winHeight) this.destroy();
         }
     }
@@ -36,8 +39,17 @@ class Particle extends Entity
     {
         ctx.save();
 
+        const transform = this.transform;
+        const { x, y } = transform.position;
+
+        ctx.beginPath();
+
         ctx.globalAlpha = this.alpha;
-        super.draw(ctx);
+        ctx.fillStyle = transform.color;
+
+        ctx.arc(x, y, this._radius, 0, 6.28);
+
+        ctx.fill();
 
         ctx.restore();
     }
