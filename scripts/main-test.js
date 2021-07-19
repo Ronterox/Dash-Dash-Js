@@ -1,5 +1,5 @@
 import { Player } from "./entities/player.js";
-import { startGame } from "./game-engine/game-engine.js";
+import { startGame, Vector2 } from "./game-engine/game-engine.js";
 import { hideStartScreen, PLAYER_COLOR, PLAYER_SPEED, setPauseButton, spawnEnemies } from "./game-config.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
@@ -14,12 +14,7 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 {
     function spawnEnemy(quantity)
     {
-        spawnEnemies(quantity, player, 5, enemy =>
-        {
-            const index = enemies.indexOf(enemy);
-            enemies.swapDelete(index);
-
-        }, enemy => enemies.push(enemy))
+        spawnEnemies(quantity, player, 10, enemy => enemies.deleteIndexOf(enemy), enemy => enemies.push(enemy))
     }
 
     //Enemy Generation
@@ -44,41 +39,6 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     createButton("Clear Enemies", () => enemies.fastLoop(enemy => enemy.destroy()));
     createButton("Start Spawning", () => enemySpawner = startSpawningEnemies());
 
-    //Override this for testing since is an interpreted language
-    const renderCounter = document.getElementById("render-counter");
-    let renderedObjects = 0;
-
-    function updateRenderCounter(increment)
-    {
-        renderCounter.innerText = `Rendered Objects: ${renderedObjects += increment}`;
-    }
-
-    Array.prototype.createGameObject = function (obj)
-    {
-        obj.sceneIndex = this.push(obj) - 1;
-        updateRenderCounter(1);
-    }
-
-    Array.prototype.removeGameObject = function (index)
-    {
-        this.swagOrderDelete(index);
-        updateRenderCounter(-1);
-    }
-
-    Array.prototype.clean = function ()
-    {
-        const oldLength = this.length;
-        this.shiftFilter(exist => exist);
-        updateRenderCounter(-(oldLength - this.length));
-    }
-
-    Array.prototype.removeFrom = function (index, count)
-    {
-        const oldLength = this.length;
-        this.splice(index, count);
-        updateRenderCounter(-(oldLength - this.length));
-    }
-
     //Creation of player
     const player = new Player(PLAYER_SPEED, PLAYER_COLOR);
 }
@@ -86,4 +46,3 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 hideStartScreen();
 setTestConfig();
 startGame("rgba(50,50,50,0.45)", true);
-

@@ -34,9 +34,13 @@ Array.prototype.swapOrderDelete = function (index)
 
 Array.prototype.clean = function () { this.shiftFilter(exist => exist); }
 
-Array.prototype.removeFrom = function (index, count) { this.splice(index, count); }
-
 Array.prototype.getRandomValue = function () { return this[Math.floor(Math.random() * this.length)]; }
+
+Array.prototype.deleteIndexOf = function (obj)
+{
+    const index = this.indexOf(obj);
+    if (index !== -1) this.swapDelete(index);
+}
 
 export
 {

@@ -1,7 +1,8 @@
-import { Entity, Vector2 } from "../game-engine/game-engine.js";
+import { Entity, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { mouseInput } from "../game-engine/input.js";
 import { LightningTrail } from "../game-engine/particle-system.js";
 import { DEFAULT_COLOR, DEFAULT_RGB } from "../game-engine/config.js";
+import { AudioManager, PLAYER_IDLE_SFX } from "../utils/audio-manager.js";
 
 const trailSettings =
     {
@@ -17,28 +18,32 @@ export class Player extends Entity
 {
     isPointerDown = false;
     targetPos = new Vector2();
-    angle = 0;
 
     lightningTrailTop = new LightningTrail(trailSettings);
-    lightningTrailMiddle = new LightningTrail(trailSettings);
-    lightningTrailBottom = new LightningTrail(trailSettings);
 
     constructor(speed = 50, color = DEFAULT_COLOR)
     {
-        super();
-        this.speed = speed;
-        this.color = color;
+        super(new Transform(new Vector2(), 0, color, speed));
     }
 
     awake()
     {
-        this.targetPos = mouseInput.mousePosition;
+        AudioManager.playNewAudio(PLAYER_IDLE_SFX);
 
+        this.targetPos = mouseInput.mousePosition;
         const game = document;
 
-        game.addEventListener("click", () => this.isMoving = true);
+        game.addEventListener("click", (click) =>
+        {
+            this.isMoving = true
+            this.targetPos = new Vector2(click.clientX, click.clientY);
+        });
 
-        game.addEventListener("pointerdown", () => this.isPointerDown = true);
+        game.addEventListener("pointerdown", () =>
+        {
+            this.isPointerDown = true
+            this.targetPos = mouseInput.mousePosition;
+        });
         game.addEventListener("pointerup", () => this.isPointerDown = false);
 
         game.addEventListener("mousemove", () =>
@@ -49,11 +54,15 @@ export class Player extends Entity
 
     update()
     {
+        super.update();
+
         if (!this.isMoving) return;
 
-        if (Vector2.distance(this.targetPos, this.position) > this.speed * .5)
+        const transform = this.transform;
+
+        if (Vector2.distance(this.targetPos, transform.position) > transform.speed * .5)
         {
-            if (this.isPointerDown) this.moveToPosition(this.targetPos);
+            if (this.isPointerDown) transform.moveToPosition(this.targetPos);
             else this.moveWithTrail();
         }
         else this.isMoving = false;
@@ -61,16 +70,16 @@ export class Player extends Entity
 
     moveWithTrail()
     {
-        const oldPos = this.position.asValue;
+        const transform = this.transform;
 
-        this.moveToPosition(this.targetPos);
+        const oldPos = transform.position.asValue;
 
-        const newPos = this.position.asValue;
+        transform.moveToPosition(this.targetPos);
+
+        const newPos = transform.position.asValue;
 
         const offset = 20;
-        this.lightningTrailMiddle.addTrail(oldPos, newPos);
         this.lightningTrailTop.addTrail(new Vector2(oldPos.x + offset, oldPos.y + offset), new Vector2(newPos.x + offset, newPos.y + offset));
-        this.lightningTrailBottom.addTrail(new Vector2(oldPos.x - offset, oldPos.y - offset), new Vector2(newPos.x + offset, newPos.y + offset));
     }
 
     draw(ctx)
@@ -80,60 +89,53 @@ export class Player extends Entity
         ctx.shadowBlur = 15;
         ctx.shadowColor = "white";
 
-        const
-            x = this.position.x,
-            y = this.position.y,
-            r = this.radius;
+        const transform = this.transform;
+        const { x, y } = transform.position;
+        const { width, height } = this._size;
 
-        //Rotate character to movement direction
-        this.rotate(ctx, this.angle, { x, y });
-
-        // Draw a circle as the body
+        // Draw a body
         super.draw(ctx);
 
-        const drawSword = (edgeColor = 'red', handleColor = 'red') =>
-        {
-            // Draw a rectangle as the "handle"
-            ctx.beginPath();
-            ctx.fillStyle = handleColor;
+        //Rotate character to movement direction
+        transform.rotate(ctx, transform.rotation, { x, y });
 
-            const handlePosition = x + this.radius + 15;
+        const drawSword = (edgeColor = DEFAULT_COLOR, handleColor = DEFAULT_COLOR) =>
+        {
+            const handlePosition = x + width + 15;
             const handleWidth = 25;
 
-            ctx.rect(handlePosition, y - 5, handleWidth, 10);
-            ctx.fill();
+            // Draw a rectangle as the "handle"
+            ctx.fillStyle = handleColor;
+            ctx.fillRect(handlePosition, y - 5, handleWidth, 10);
 
             // Draw other rectangle as the "edge"
-            ctx.beginPath();
             ctx.fillStyle = edgeColor;
-
-            ctx.rect(handlePosition + handleWidth, y - 5, 70, 10);
-            ctx.fill();
+            ctx.fillRect(handlePosition + handleWidth, y - 5, 70, 10);
         }
 
         drawSword('gray', 'black');
 
         // Specify how the hands should look
-        const ARMS_LENGTH = 20, ARMS_WIDTH = 4;
+        const ARMS_LENGTH = 20, ARMS_WIDTH = 8;
 
         ctx.beginPath()
-        ctx.strokeStyle = this.color;
+        ctx.strokeStyle = transform.color;
         ctx.lineCap = "round";
         ctx.lineWidth = ARMS_WIDTH;
 
         //Hands constants
-        const elbowConnection = x + 5;
-        const armsLength = x + r + ARMS_LENGTH;
-        const shoulderYOffset = 2;
+        const elbowConnection = x + 50;
+        const armsLength = x + width + ARMS_LENGTH;
+        const shoulderYOffset = 30;
         const handsYOffset = 5;
 
         // Right Hand
-        ctx.moveTo(elbowConnection, y + r - shoulderYOffset)
+        ctx.moveTo(elbowConnection, y + height - shoulderYOffset)
         ctx.lineTo(armsLength, y + handsYOffset)
         ctx.stroke()
 
         // Left Hand
-        ctx.moveTo(elbowConnection, y - r + shoulderYOffset)
+        ctx.moveTo(elbowConnection, y - height + shoulderYOffset)
         ctx.lineTo(armsLength, y - handsYOffset)
         ctx.stroke()
 
