@@ -54,6 +54,8 @@ export class Player extends Entity
 
     update()
     {
+        super.update();
+
         if (!this.isMoving) return;
 
         const transform = this.transform;
@@ -91,11 +93,11 @@ export class Player extends Entity
         const { x, y } = transform.position;
         const { width, height } = this._size;
 
-        //Rotate character to movement direction
-        transform.rotate(ctx, transform.rotation, { x, y });
-
         // Draw a body
         super.draw(ctx);
+
+        //Rotate character to movement direction
+        transform.rotate(ctx, transform.rotation, { x, y });
 
         const drawSword = (edgeColor = DEFAULT_COLOR, handleColor = DEFAULT_COLOR) =>
         {

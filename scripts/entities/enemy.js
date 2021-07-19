@@ -1,7 +1,7 @@
-import { Entity, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
+import { ClassEvent, Entity, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
-import { ClassEvent, getRandomColor, getRandomInteger } from "../utils/utilities.js";
+import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
 import { AudioManager, ENEMY_DEATH_SFX, ENEMY_HIT_SFX, ENEMY_SFX, ENEMY_SPAWN_SFX, SLASH_SFX } from "../utils/audio-manager.js";
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
@@ -37,35 +37,37 @@ export class Enemy extends Entity
         AudioManager.playNewAudio(ENEMY_SPAWN_SFX);
         const growlSfx = AudioManager.playNewAudio(ENEMY_SFX, true);
         this._onKill.addListener(() => AudioManager.endAudio(growlSfx));
+
+        this.hitbox.collisionEvent.addListener((caller, hitbox) =>
+        {
+            const player = this._playerRef;
+
+            if (hitbox.collisionId === player.hitbox.collisionId && player.isMoving && !player.isPointerDown)
+            {
+                this.moveAwayFrom(hitbox.position);
+                this.shrinkMyself(10);
+            }
+        })
     }
 
     update()
     {
+        super.update();
+
         if (!this.isMoving) return;
 
         const player = this._playerRef;
         const playerPosition = player.transform.position;
 
         const transform = this.transform;
-        const characterNextMovementArea = transform.speed * .5 + this._size.width;
+        const characterNextMovementArea = this._size.width;
 
         if (this.isBeingKnockBack)
         {
             transform.moveToPosition(this._knockBackPosition, this._knockBackForce);
             this.isBeingKnockBack = Vector2.distance(this._knockBackPosition, transform.position) > characterNextMovementArea;
         }
-        else
-        {
-            const hasCollisionWithPlayer = Vector2.distance(playerPosition, transform.position) < characterNextMovementArea + player.radius;
-
-            if (!hasCollisionWithPlayer) transform.moveToPosition(playerPosition);
-            //TODO: better detection of pointer down for damage
-            else if (player.isMoving && !player.isPointerDown)
-            {
-                this.moveAwayFrom(playerPosition);
-                this.shrinkEnemy(10);
-            }
-        }
+        else transform.moveToPosition(playerPosition);
     }
 
     //TODO: if necessary more speed, fix this use of save for shadows
@@ -97,11 +99,11 @@ export class Enemy extends Entity
         this._knockBackPosition = new Vector2(myX + differenceX * this._knockBackForce, myY + differenceY * this._knockBackForce);
     }
 
-    shrinkEnemy(size)
+    shrinkMyself(size)
     {
-        const newSize = this.reduceSize(size);
+        const { width, height } = this.reduceSize(size);
 
-        if (newSize < 1) this.kill();
+        if (width < 1 || height < 1) this.kill();
         else
         {
             this.generateParticles();
@@ -121,8 +123,10 @@ export class Enemy extends Entity
     {
         this.resetAnimation();
 
-        let newSize = this.radius - sizeReduce;
-        this._currentAnimation = gsap.to(this, { radius: newSize });
+        const { width, height } = this._size;
+
+        const newSize = { width: width - sizeReduce, height: height - sizeReduce };
+        this._currentAnimation = gsap.to(this, { _size: newSize });
 
         return newSize;
     }

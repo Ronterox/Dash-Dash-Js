@@ -52,6 +52,34 @@ class SceneManager
     }
 }
 
+class ClassEvent
+{
+    _sender;
+    _listeners = [];
+
+    constructor(sender)
+    {
+        this._sender = sender;
+    }
+
+    addListener(listener)
+    {
+        this._listeners.push(listener);
+    }
+
+    removeListener(listener)
+    {
+        const index = this._listeners.indexOf(listener);
+        if (index !== -1) this._listeners.swapDelete(index);
+        else console.log(`Couldn't find listener reference of method ${listener} so it couldn't be removed!`)
+    }
+
+    notify(args)
+    {
+        for (let i = 0; i < this._listeners.length; i++) this._listeners[i](this._sender, args);
+    }
+}
+
 class GameObject
 {
     _name;
@@ -124,19 +152,114 @@ class Transform
     }
 }
 
+class Hitbox
+{
+    static #_allHitBoxes = [];
+    static #_idEr = 0;
+
+    collisionId;
+
+    size = { width: 50, height: 50 };
+    _offset = { offX: 0, offY: 0 };
+    position = new Vector2();
+
+    collisions = [];
+    isColliding = false;
+
+    collisionEvent = new ClassEvent(this);
+
+    constructor(size = { width: 50, height: 50 }, position = new Vector2(), offset = { offX: 0, offY: 0 })
+    {
+        this.collisionId = ++Hitbox.#_idEr;
+        Hitbox.#_allHitBoxes.push(this);
+
+        this.position = position;
+        this.size = size;
+        this._offset = offset;
+    }
+
+    static cleanHitboxes()
+    {
+        Hitbox.#_allHitBoxes.fastLoop(hitbox =>
+        {
+            hitbox.collisions = [];
+            hitbox.isColliding = false;
+        });
+    }
+
+    addCollision(hitbox)
+    {
+        this.collisions.push(hitbox);
+        this.collisionEvent.notify(hitbox);
+    }
+
+    update()
+    {
+        this.collisions = [];
+
+        const { x, y } = this.position;
+        const { width, height } = this.size;
+
+        Hitbox.#_allHitBoxes.fastLoop(hitbox =>
+        {
+            if (hitbox.collisionId !== this.collisionId)
+            {
+                const hitSize = hitbox.size;
+                const hitPosition = hitbox.position;
+
+                const hitX = hitPosition.x, hitY = hitPosition.y;
+
+                if (hitbox.isColliding && hitbox.collisions.indexOf(this))
+                {
+                    this.addCollision(hitbox);
+                }
+                else if (x > hitSize.width + hitX || hitX > x + width
+                    || y + height < hitY || hitY + height < y)
+                {
+                    //No collision
+                }
+                else this.addCollision(hitbox);
+            }
+        });
+
+        this.isColliding = this.collisions.length > 0;
+    }
+
+    draw(ctx)
+    {
+        const { x, y } = this.position;
+        const { offX, offY } = this._offset;
+        const { width, height } = this.size;
+
+        ctx.strokeStyle = this.isColliding ? "green" : "red";
+        ctx.strokeRect(x + offX, y + offY, width, height);
+    }
+
+    destroy()
+    {
+        Hitbox.#_allHitBoxes.deleteIndexOf(this);
+    }
+}
+
 class Entity extends GameObject
 {
     transform = new Transform();
-
     _size = { width: 50, height: 50 };
 
+    hitbox = new Hitbox(this._size, this.transform.position);
     isMoving = false;
 
-    constructor(transform = new Transform(), size = { width: 50, height: 50 })
+    constructor(transform = new Transform(), size = { width: 50, height: 50 }, hitbox = new Hitbox(size, transform.position))
     {
         super();
         this.transform = transform;
         this._size = size;
+        this.hitbox = hitbox;
+    }
+
+    update()
+    {
+        this.hitbox.update();
     }
 
     draw(ctx)
@@ -147,6 +270,14 @@ class Entity extends GameObject
 
         ctx.fillStyle = transform.color;
         ctx.fillRect(x, y, width, height);
+
+        this.hitbox.draw(ctx);
+    }
+
+    destroy()
+    {
+        super.destroy();
+        this.hitbox.destroy();
     }
 }
 
@@ -283,6 +414,7 @@ function animateFpsCount(backgroundStyle)
 {
     cleanScreen(backgroundStyle);
 
+    Hitbox.cleanHitboxes();
     SceneManager.updateGameObjectsWithRenderedCount();
     SceneManager.drawGameObjects();
 
@@ -295,6 +427,7 @@ function justAnimate(backgroundStyle)
 {
     cleanScreen(backgroundStyle);
 
+    Hitbox.cleanHitboxes();
     SceneManager.updateGameObjects();
     SceneManager.drawGameObjects();
 
@@ -324,6 +457,7 @@ export
     Vector2,
     SpriteSheet,
     Transform,
+    ClassEvent,
 
     startGame,
     pauseGame,
