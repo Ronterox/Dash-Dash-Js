@@ -2,7 +2,7 @@ import { Entity, SpriteSheet, Transform, Vector2 } from "../game-engine/game-eng
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { ClassEvent, getRandomColor, getRandomInteger } from "../utils/utilities.js";
-import { AudioManager, ENEMY_DEATH_SFX, ENEMY_SFX, ENEMY_SPAWN_SFX, SLASH_SFX } from "../utils/audio-manager.js";
+import { AudioManager, ENEMY_DEATH_SFX, ENEMY_HIT_SFX, ENEMY_SFX, ENEMY_SPAWN_SFX, SLASH_SFX } from "../utils/audio-manager.js";
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
@@ -102,9 +102,13 @@ export class Enemy extends Entity
         const newSize = this.reduceSize(size);
 
         if (newSize < 1) this.kill();
-        else this.generateParticles();
+        else
+        {
+            this.generateParticles();
+            AudioManager.playAudio(SLASH_SFX);
+            AudioManager.playNewAudio(ENEMY_HIT_SFX);
+        }
 
-        AudioManager.playAudio(SLASH_SFX);
         playBackgroundMusicOnFirstAttack();
     }
 

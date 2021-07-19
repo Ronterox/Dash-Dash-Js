@@ -84,6 +84,7 @@ const SLASH_SFX = AUDIOS_PATH + "slash.mp3";
 
 const ENEMY_SPAWN_SFX = AUDIOS_PATH + "spawn_growl.mp3";
 const ENEMY_SFX = AUDIOS_PATH + "monster_growl.mp3";
+const ENEMY_HIT_SFX = MISSING_AUDIO;
 const ENEMY_DEATH_SFX = AUDIOS_PATH + "imp_death.mp3";
 
 //Loading sounds
@@ -103,6 +104,7 @@ export
     ENEMY_SPAWN_SFX,
     ENEMY_DEATH_SFX,
     ENEMY_SFX,
+    ENEMY_HIT_SFX,
 
     AudioManager
 };

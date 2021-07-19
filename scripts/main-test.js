@@ -14,12 +14,7 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 {
     function spawnEnemy(quantity)
     {
-        spawnEnemies(quantity, player, 10, enemy =>
-        {
-            const index = enemies.indexOf(enemy);
-            enemies.swapDelete(index);
-
-        }, enemy => enemies.push(enemy))
+        spawnEnemies(quantity, player, 10, enemy => enemies.deleteIndexOf(enemy), enemy => enemies.push(enemy))
     }
 
     //Enemy Generation

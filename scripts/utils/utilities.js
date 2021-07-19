@@ -36,6 +36,12 @@ Array.prototype.clean = function () { this.shiftFilter(exist => exist); }
 
 Array.prototype.getRandomValue = function () { return this[Math.floor(Math.random() * this.length)]; }
 
+Array.prototype.deleteIndexOf = function (obj)
+{
+    const index = this.indexOf(obj);
+    if (index !== -1) this.swapDelete(index);
+}
+
 class ClassEvent
 {
     _sender;

@@ -39,11 +39,12 @@ function spawnEnemies(number, playerRef, speedLimit = 5, onKill = enemy => conso
     while (number--)
     {
         const newEnemy = new Enemy(getRandomFloat(3, speedLimit), playerRef);
-        newEnemy._onKill = () =>
+        newEnemy._onKill.addListener(() =>
         {
             updateKillCounter();
             onKill(newEnemy);
-        }
+        });
+
         enemyCount.innerText = `Enemy Count: ${++enemyCounter}`
         onSpawn(newEnemy);
     }
