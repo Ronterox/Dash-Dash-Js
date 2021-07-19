@@ -127,28 +127,26 @@ class Transform
 class Entity extends GameObject
 {
     transform = new Transform();
-    radius = 30;
+
+    _size = { width: 50, height: 50 };
 
     isMoving = false;
 
-    constructor(transform = new Transform(), radius = 30)
+    constructor(transform = new Transform(), size = { width: 50, height: 50 })
     {
         super();
-        this.radius = radius;
         this.transform = transform;
+        this._size = size;
     }
 
     draw(ctx)
     {
         const transform = this.transform;
         const { x, y } = transform.position;
-
-        ctx.beginPath();
+        const { width, height } = this._size;
 
         ctx.fillStyle = transform.color;
-        ctx.arc(x, y, this.radius, 0, 6.28);
-
-        ctx.fill();
+        ctx.fillRect(x, y, width, height);
     }
 }
 

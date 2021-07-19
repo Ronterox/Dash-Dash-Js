@@ -20,8 +20,6 @@ export class Player extends Entity
     targetPos = new Vector2();
 
     lightningTrailTop = new LightningTrail(trailSettings);
-    lightningTrailMiddle = new LightningTrail(trailSettings);
-    lightningTrailBottom = new LightningTrail(trailSettings);
 
     constructor(speed = 50, color = DEFAULT_COLOR)
     {
@@ -71,9 +69,7 @@ export class Player extends Entity
         const newPos = transform.position.asValue;
 
         const offset = 20;
-        this.lightningTrailMiddle.addTrail(oldPos, newPos);
         this.lightningTrailTop.addTrail(new Vector2(oldPos.x + offset, oldPos.y + offset), new Vector2(newPos.x + offset, newPos.y + offset));
-        this.lightningTrailBottom.addTrail(new Vector2(oldPos.x - offset, oldPos.y - offset), new Vector2(newPos.x + offset, newPos.y + offset));
     }
 
     draw(ctx)
@@ -84,40 +80,33 @@ export class Player extends Entity
         ctx.shadowColor = "white";
 
         const transform = this.transform;
-
         const { x, y } = transform.position;
-        const r = this.radius;
+        const { width, height } = this._size;
 
         //Rotate character to movement direction
         transform.rotate(ctx, transform.rotation, { x, y });
 
-        // Draw a circle as the body
+        // Draw a body
         super.draw(ctx);
 
         const drawSword = (edgeColor = DEFAULT_COLOR, handleColor = DEFAULT_COLOR) =>
         {
-            // Draw a rectangle as the "handle"
-            ctx.beginPath();
-            ctx.fillStyle = handleColor;
-
-            const handlePosition = x + this.radius + 15;
+            const handlePosition = x + width + 15;
             const handleWidth = 25;
 
-            ctx.rect(handlePosition, y - 5, handleWidth, 10);
-            ctx.fill();
+            // Draw a rectangle as the "handle"
+            ctx.fillStyle = handleColor;
+            ctx.fillRect(handlePosition, y - 5, handleWidth, 10);
 
             // Draw other rectangle as the "edge"
-            ctx.beginPath();
             ctx.fillStyle = edgeColor;
-
-            ctx.rect(handlePosition + handleWidth, y - 5, 70, 10);
-            ctx.fill();
+            ctx.fillRect(handlePosition + handleWidth, y - 5, 70, 10);
         }
 
         drawSword('gray', 'black');
 
         // Specify how the hands should look
-        const ARMS_LENGTH = 20, ARMS_WIDTH = 4;
+        const ARMS_LENGTH = 20, ARMS_WIDTH = 8;
 
         ctx.beginPath()
         ctx.strokeStyle = transform.color;
@@ -125,18 +114,18 @@ export class Player extends Entity
         ctx.lineWidth = ARMS_WIDTH;
 
         //Hands constants
-        const elbowConnection = x + 5;
-        const armsLength = x + r + ARMS_LENGTH;
-        const shoulderYOffset = 2;
+        const elbowConnection = x + 50;
+        const armsLength = x + width + ARMS_LENGTH;
+        const shoulderYOffset = 30;
         const handsYOffset = 5;
 
         // Right Hand
-        ctx.moveTo(elbowConnection, y + r - shoulderYOffset)
+        ctx.moveTo(elbowConnection, y + height - shoulderYOffset)
         ctx.lineTo(armsLength, y + handsYOffset)
         ctx.stroke()
 
         // Left Hand
-        ctx.moveTo(elbowConnection, y - r + shoulderYOffset)
+        ctx.moveTo(elbowConnection, y - height + shoulderYOffset)
         ctx.lineTo(armsLength, y - handsYOffset)
         ctx.stroke()
 

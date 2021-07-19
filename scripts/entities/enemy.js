@@ -25,7 +25,7 @@ export class Enemy extends Entity
         const randomColor = getRandomColor(100, 50);
         const randomRadius = enemySizes.getRandomValue();
 
-        super(new Transform(startPos, 0, randomColor, speed), randomRadius);
+        super(new Transform(startPos, 0, randomColor, speed), { width: randomRadius, height: randomRadius });
 
         this._playerRef = player;
         this._spriteSheet = new SpriteSheet("imp-anim.png", 7);
@@ -47,7 +47,7 @@ export class Enemy extends Entity
         const playerPosition = player.transform.position;
 
         const transform = this.transform;
-        const characterNextMovementArea = transform.speed * .5 + this.radius;
+        const characterNextMovementArea = transform.speed * .5 + this._size.width;
 
         if (this.isBeingKnockBack)
         {
@@ -80,7 +80,7 @@ export class Enemy extends Entity
 
         const { x, y } = transform.position;
 
-        this._spriteSheet.draw(ctx, { x: x - 100, y: y - 100 }, 0, Math.floor(this.radius * 0.30));
+        this._spriteSheet.draw(ctx, { x: x, y: y }, 0, Math.floor(this._size.width * .33));
 
         super.draw(ctx);
 
