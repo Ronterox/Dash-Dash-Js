@@ -1,6 +1,5 @@
 import { ctx, DEFAULT_COLOR, SPRITES_PATH, winHeight, winWidth } from "./config.js";
 
-const sceneObjects = [];
 //Set it to pixel art
 ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
 
@@ -15,29 +14,53 @@ Array.prototype.swagOrderDelete = function (index)
     this.pop();
 }
 
-Array.prototype.createGameObject = function (obj) { obj.sceneIndex = this.push(obj) - 1;}
-
-Array.prototype.removeGameObject = function (index) { this.swagOrderDelete(index); }
-
 Array.prototype.fastLoop = function (action)
 {
     let length = this.length;
     while (length--) action(this[length], length);
 }
 
-let gameStarted = false;
+class SceneManager
+{
+    static _sceneObjects = [];
+    static _sceneStarted = false;
+
+    static addGameObject(obj)
+    {
+        obj.sceneIndex = this._sceneObjects.push(obj) - 1;
+        if (this._sceneStarted) setTimeout(() => obj.awake(), 100);
+    }
+
+    static removeGameObject = (index) => this._sceneObjects.swagOrderDelete(index);
+
+    static updateGameObjects = () => this._sceneObjects.fastLoop(gameObject => gameObject.update());
+
+    static drawGameObjects = () => this._sceneObjects.fastLoop(gameObject => gameObject.draw(ctx));
+
+    static updateGameObjectsWithRenderedCount()
+    {
+        this.updateGameObjects();
+
+        const renderCounter = document.getElementById("render-counter");
+        renderCounter.innerText = `Rendered Objects: ${this._sceneObjects.length}`;
+    }
+
+    static startScene()
+    {
+        this._sceneStarted = true;
+        this._sceneObjects.fastLoop(gameObject => gameObject.awake())
+    }
+}
 
 class GameObject
 {
-    name;
+    _name;
     sceneIndex;
 
     constructor()
     {
-        this.name = this.constructor.name;
-        sceneObjects.createGameObject(this);
-
-        if (gameStarted) setTimeout(() => this.awake(), 100);
+        this._name = this.constructor['_name'];
+        SceneManager.addGameObject(this);
     }
 
     //Called at the start of the app
@@ -57,7 +80,40 @@ class GameObject
 
     destroy()
     {
-        sceneObjects.removeGameObject(this.sceneIndex);
+        SceneManager.removeGameObject(this.sceneIndex);
+    }
+}
+
+class Transform
+{
+    position = new Vector2();
+    velocity = new Vector2();
+    rotation = 0;
+
+    color = DEFAULT_COLOR;
+    speed = 1;
+
+    constructor(startPosition = new Vector2(), rotation = 0, color = DEFAULT_COLOR, speed = 1,)
+    {
+        this.position = startPosition;
+        this.rotation = rotation;
+        this.color = color;
+        this.speed = speed;
+    }
+
+    moveToPosition(position, speed = this.speed)
+    {
+        const myPosition = this.position;
+
+        this.rotation = Math.atan2(position.y - myPosition.y, position.x - myPosition.x);
+
+        this.velocity.setValues(Math.cos(this.rotation) * speed, Math.sin(this.rotation) * speed);
+        myPosition.add(this.velocity);
+    }
+
+    updateMovement()
+    {
+        this.position.add(this.velocity);
     }
 
     rotate(ctx, angle, { x, y } = new Vector2())
@@ -70,45 +126,29 @@ class GameObject
 
 class Entity extends GameObject
 {
-    position = new Vector2();
-    color = DEFAULT_COLOR;
+    transform = new Transform();
+    radius = 30;
 
-    velocity = new Vector2();
-    speed = 1
     isMoving = false;
-    angle = 0;
 
-    //TODO: don't double initialize parameters, with entity parent
-    constructor(startPosition = new Vector2(), radius = 30, color = DEFAULT_COLOR, velocity = new Vector2(1, 1), speed = 1)
+    constructor(transform = new Transform(), radius = 30)
     {
         super();
-        this.position = startPosition;
         this.radius = radius;
-        this.color = color;
-        this.velocity = velocity;
-        this.speed = speed;
+        this.transform = transform;
     }
 
     draw(ctx)
     {
-        const { x, y } = this.position;
+        const transform = this.transform;
+        const { x, y } = transform.position;
 
         ctx.beginPath();
 
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = transform.color;
         ctx.arc(x, y, this.radius, 0, 6.28);
 
         ctx.fill();
-    }
-
-    moveToPosition(position, speed = this.speed)
-    {
-        const entityPosition = this.position;
-
-        this.angle = Math.atan2(position.y - entityPosition.y, position.x - entityPosition.x);
-
-        this.velocity.setValues(Math.cos(this.angle) * speed, Math.sin(this.angle) * speed);
-        entityPosition.add(this.velocity);
     }
 }
 
@@ -126,6 +166,11 @@ class Vector2
     get asValue()
     {
         return new Vector2(this.x, this.y);
+    }
+
+    get asArray()
+    {
+        return [this.x, this.y];
     }
 
     add(otherVector)
@@ -222,11 +267,6 @@ function updateFps()
     lastLoop = thisLoop;
 }
 
-const updateGameObjects = () => sceneObjects.fastLoop(gameObject => gameObject.update());
-const drawGameObjects = () => sceneObjects.fastLoop(gameObject => gameObject.draw(ctx));
-
-const initializeAllObjects = () => sceneObjects.fastLoop(gameObject => gameObject.awake());
-
 const startFpsCounting = () =>
 {
     const fpsOut = document.getElementById("fps-counter");
@@ -235,13 +275,18 @@ const startFpsCounting = () =>
 
 let animationFrame, animationLoop;
 
+function cleanScreen(style)
+{
+    ctx.fillStyle = style;
+    ctx.fillRect(0, 0, winWidth, winHeight);
+}
+
 function animateFpsCount(backgroundStyle)
 {
-    ctx.fillStyle = backgroundStyle;
-    ctx.fillRect(0, 0, winWidth, winHeight);
+    cleanScreen(backgroundStyle);
 
-    updateGameObjects();
-    drawGameObjects();
+    SceneManager.updateGameObjectsWithRenderedCount();
+    SceneManager.drawGameObjects();
 
     updateFps();
 
@@ -250,21 +295,19 @@ function animateFpsCount(backgroundStyle)
 
 function justAnimate(backgroundStyle)
 {
-    ctx.fillStyle = backgroundStyle;
-    ctx.fillRect(0, 0, winWidth, winHeight);
+    cleanScreen(backgroundStyle);
 
-    updateGameObjects();
-    drawGameObjects();
+    SceneManager.updateGameObjects();
+    SceneManager.drawGameObjects();
 
     animationFrame = requestAnimationFrame(justAnimate);
 }
 
 function startGame(style = "rgba(255,255,255, 1)", countFps = false)
 {
-    initializeAllObjects();
-    startFpsCounting();
+    SceneManager.startScene();
 
-    gameStarted = true;
+    startFpsCounting();
 
     animationLoop = countFps ? () => animateFpsCount(style) : () => justAnimate(style);
 
@@ -277,11 +320,12 @@ const resumeGame = () => animationLoop();
 
 export
 {
-    sceneObjects,
+    SceneManager,
     GameObject,
     Entity,
     Vector2,
     SpriteSheet,
+    Transform,
 
     startGame,
     pauseGame,

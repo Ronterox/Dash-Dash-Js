@@ -1,64 +1,68 @@
-import { Entity, SpriteSheet, Vector2 } from "../game-engine/game-engine.js";
+import { Entity, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
-import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
-import { AudioManager, SLASH_SFX } from "../utils/audio-manager.js";
+import { ClassEvent, getRandomColor, getRandomInteger } from "../utils/utilities.js";
+import { AudioManager, ENEMY_DEATH_SFX, ENEMY_SFX, ENEMY_SPAWN_SFX, SLASH_SFX } from "../utils/audio-manager.js";
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
 
 export class Enemy extends Entity
 {
-    playerRef;
-    isMoving = false;
-    onKill;
+    _playerRef;
+    _onKill = new ClassEvent(this);
 
     isBeingKnockBack = false;
-    knockBackForce = 10;
-    knockBackPosition = new Vector2();
+    _knockBackForce = 10;
+    _knockBackPosition = new Vector2();
 
-    spriteSheet = new SpriteSheet();
+    _spriteSheet = new SpriteSheet();
+    _currentAnimation;
 
     constructor(speed, player)
     {
-        super();
-        this.speed = speed;
-        this.playerRef = player;
-        this.spriteSheet = new SpriteSheet("imp-anim.png", 7);
-        this.position = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
+        const startPos = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
+        const randomColor = getRandomColor(100, 50);
+        const randomRadius = enemySizes.getRandomValue();
 
-        this.onKill = () => console.log("Enemy killed");
-        this.color = getRandomColor(100, 50);
-        //TODO: if we use again random object from array, create method (utility)
-        this.radius = enemySizes.getRandomValue();
+        super(new Transform(startPos, 0, randomColor, speed), randomRadius);
+
+        this._playerRef = player;
+        this._spriteSheet = new SpriteSheet("imp-anim.png", 7);
     }
 
     awake()
     {
         this.isMoving = true;
+        AudioManager.playNewAudio(ENEMY_SPAWN_SFX);
+        const growlSfx = AudioManager.playNewAudio(ENEMY_SFX, true);
+        this._onKill.addListener(() => AudioManager.endAudio(growlSfx));
     }
 
     update()
     {
         if (!this.isMoving) return;
 
-        const player = this.playerRef;
-        const characterNextMovementArea = this.speed * .5 + this.radius;
+        const player = this._playerRef;
+        const playerPosition = player.transform.position;
+
+        const transform = this.transform;
+        const characterNextMovementArea = transform.speed * .5 + this.radius;
 
         if (this.isBeingKnockBack)
         {
-            this.moveToPosition(this.knockBackPosition, this.knockBackForce);
-            this.isBeingKnockBack = Vector2.distance(this.knockBackPosition, this.position) > characterNextMovementArea;
+            transform.moveToPosition(this._knockBackPosition, this._knockBackForce);
+            this.isBeingKnockBack = Vector2.distance(this._knockBackPosition, transform.position) > characterNextMovementArea;
         }
         else
         {
-            const hasCollisionWithPlayer = Vector2.distance(player.position, this.position) < characterNextMovementArea + player.radius;
+            const hasCollisionWithPlayer = Vector2.distance(playerPosition, transform.position) < characterNextMovementArea + player.radius;
 
-            if (!hasCollisionWithPlayer) this.moveToPosition(player.position);
+            if (!hasCollisionWithPlayer) transform.moveToPosition(playerPosition);
             //TODO: better detection of pointer down for damage
             else if (player.isMoving && !player.isPointerDown)
             {
-                this.knockBackAwayFrom(player)
+                this.moveAwayFrom(playerPosition);
                 this.shrinkEnemy(10);
             }
         }
@@ -69,28 +73,28 @@ export class Enemy extends Entity
     {
         ctx.save();
 
+        const transform = this.transform;
+
         ctx.shadowBlur = 12;
-        ctx.shadowColor = this.color;
+        ctx.shadowColor = transform.color;
 
-        const { x, y } = this.position;
+        const { x, y } = transform.position;
 
-        this.spriteSheet.draw(ctx, { x: x - 100, y: y - 100 }, 0, Math.floor(this.radius * 0.30));
+        this._spriteSheet.draw(ctx, { x: x - 100, y: y - 100 }, 0, Math.floor(this.radius * 0.30));
 
         super.draw(ctx);
 
         ctx.restore();
     }
 
-    knockBackAwayFrom(character)
+    moveAwayFrom({ x, y })
     {
         this.isBeingKnockBack = true;
 
-        const charX = character.position.x, charY = character.position.y;
-        const x = this.position.x, y = this.position.y;
+        const [myX, myY] = this.transform.position.asArray;
+        const differenceX = x - myX, differenceY = y - myY;
 
-        const differenceX = charX - x, differenceY = charY - y;
-
-        this.knockBackPosition = new Vector2(x + differenceX * this.knockBackForce, y + differenceY * this.knockBackForce);
+        this._knockBackPosition = new Vector2(myX + differenceX * this._knockBackForce, myY + differenceY * this._knockBackForce);
     }
 
     shrinkEnemy(size)
@@ -106,7 +110,7 @@ export class Enemy extends Entity
 
     resetAnimation()
     {
-        if (this.currentAnimation) this.currentAnimation.kill();
+        if (this._currentAnimation) this._currentAnimation.kill();
     }
 
     reduceSize(sizeReduce)
@@ -114,7 +118,7 @@ export class Enemy extends Entity
         this.resetAnimation();
 
         let newSize = this.radius - sizeReduce;
-        this.currentAnimation = gsap.to(this, { radius: newSize });
+        this._currentAnimation = gsap.to(this, { radius: newSize });
 
         return newSize;
     }
@@ -124,14 +128,16 @@ export class Enemy extends Entity
         const numberOfParticlesPerSize = Math.floor(this.radius * 0.33);
         let numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
-        while (numberOfParticles--) new Particle(this.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), this.color, areTemporal);
+        const transform = this.transform;
+        while (numberOfParticles--) new Particle(transform.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), transform.color, areTemporal);
     }
 
     kill()
     {
         this.resetAnimation();
         this.generateParticles(false);
-        this.onKill();
+        AudioManager.playNewAudio(ENEMY_DEATH_SFX);
+        this._onKill.notify();
         this.destroy();
     }
 }

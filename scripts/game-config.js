@@ -1,6 +1,7 @@
 import { pauseGame, resumeGame } from "./game-engine/game-engine.js";
 import { AudioManager, BACKGROUND_MUSIC } from "./utils/audio-manager.js";
 import { Enemy } from "./entities/enemy.js";
+import { getRandomFloat } from "./utils/utilities.js";
 
 function setPauseButton(enemySpawner, startSpawningEnemies)
 {
@@ -37,8 +38,8 @@ function spawnEnemies(number, playerRef, speedLimit = 5, onKill = enemy => conso
 {
     while (number--)
     {
-        const newEnemy = new Enemy(Math.random() * speedLimit, playerRef);
-        newEnemy.onKill = () =>
+        const newEnemy = new Enemy(getRandomFloat(3, speedLimit), playerRef);
+        newEnemy._onKill = () =>
         {
             updateKillCounter();
             onKill(newEnemy);

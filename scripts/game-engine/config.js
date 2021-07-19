@@ -1,17 +1,24 @@
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-let winWidth = canvas.width = window.innerWidth,
-    winHeight = canvas.height = window.innerHeight;
+let winWidth = canvas.width = window.innerWidth.valueOf(),
+    winHeight = canvas.height = window.innerHeight.valueOf();
 
 window.addEventListener("resize", () =>
 {
-    winWidth = canvas.width = window.innerWidth;
-    winHeight = canvas.height = window.innerHeight;
+    const style = canvas.style;
+
+    winWidth = window.innerWidth.valueOf();
+    winHeight = window.innerHeight.valueOf();
+
+    style.width = winWidth;
+    style.height = winHeight;
+
+    ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
 });
 
-const SPRITES_PATH = './media/sprites/';
 const AUDIOS_PATH = './media/audio/';
+const SPRITES_PATH = './media/sprites/';
 
 const DEFAULT_COLOR = 'red';
 const DEFAULT_RGB = { r: 255, g: 255, b: 255 }
