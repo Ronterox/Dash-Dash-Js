@@ -59,7 +59,7 @@ export class Enemy extends Entity
         this._multiplier = Math.floor(this._size.width * .33);
         const { spriteHeight } = this._spriteSheet.spriteSize;
         this.hitbox.size = { width: spriteHeight * this._multiplier, height: spriteHeight * this._multiplier };
-        
+
         if (!this.isMoving) return;
 
         const player = this._playerRef;
@@ -77,6 +77,9 @@ export class Enemy extends Entity
     }
 
     //TODO: if necessary more speed, fix this use of save for shadows
+    //Check enemies on a different array and draw them there together
+    //TODO: flip sprite to look at player
+    //Save a flip image of the same sprite sheet and change the image when drawing (since faster than flipping canvas)
     draw(ctx)
     {
         ctx.save();

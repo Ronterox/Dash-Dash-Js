@@ -8,6 +8,12 @@ class AudioManager
     static audiosPlaying = [];
 
     //TODO: Audio looping functional
+    //First check what is wrong
+    //Add event for ending if loop play, else remove it
+
+    //TODO: Add random pitch
+    //Another parameter for pitch changing pitch
+    //Change pitch between a negative and positive increment randomly
     static playNewAudio(path, loop = false)
     {
         const audio = new Audio(path)
@@ -56,13 +62,8 @@ class AudioManager
 
     static endAudio(audio)
     {
-        const index = this.audiosPlaying.indexOf(audio);
-        if (index !== -1)
-        {
-            const audio = this.audiosPlaying[index];
-            if (!audio.paused) audio.pause();
-            this.audiosPlaying.swapDelete(index);
-        }
+        if (!audio.paused) audio.pause();
+        this.audiosPlaying.deleteIndexOf(audio);
     }
 
     static pauseAudio()
