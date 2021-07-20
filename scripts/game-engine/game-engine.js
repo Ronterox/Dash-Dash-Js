@@ -245,6 +245,18 @@ class Hitbox
     }
 }
 
+class Size
+{
+    width;
+    height
+
+    constructor(width = 30, height = 30)
+    {
+        this.width = width;
+        this.height = height;
+    }
+}
+
 class Entity extends GameObject
 {
     transform;
@@ -253,7 +265,7 @@ class Entity extends GameObject
     hitbox;
     isMoving = false;
 
-    constructor(transform = new Transform(), size = { width: 50, height: 50 }, hitbox = new Hitbox(size, transform.position))
+    constructor(transform = new Transform(), size = new Size(), hitbox = new Hitbox(size, transform.position))
     {
         super();
         this.transform = transform;
@@ -474,6 +486,7 @@ export
     Transform,
     ClassEvent,
     Hitbox,
+    Size,
 
     startGame,
     pauseGame,

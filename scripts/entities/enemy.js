@@ -1,4 +1,4 @@
-import { ClassEvent, Entity, Hitbox, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
+import { ClassEvent, Entity, Size, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
@@ -28,7 +28,7 @@ export class Enemy extends Entity
 
         const sizeMultiplier = Math.floor(randomSize * .33);
 
-        super(new Transform(startPos, 0, randomColor, speed), { width: randomSize, height: randomSize });
+        super(new Transform(startPos, 0, randomColor, speed), new Size(randomSize, randomSize));
 
         this._playerRef = player;
         this._spriteSheet = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
@@ -59,7 +59,7 @@ export class Enemy extends Entity
         this._multiplier = Math.floor(this._size.width * .33);
         const { spriteHeight } = this._spriteSheet.spriteSize;
         this.hitbox.size = { width: spriteHeight * this._multiplier, height: spriteHeight * this._multiplier };
-
+        
         if (!this.isMoving) return;
 
         const player = this._playerRef;
@@ -132,7 +132,7 @@ export class Enemy extends Entity
         const { width, height } = this._size;
 
         const newSize = { width: width - sizeReduce, height: height - sizeReduce };
-        this._currentAnimation = gsap.to(this, { _size: newSize });
+        this._currentAnimation = gsap.to(this._size, { width: newSize.width, height: newSize.height });
 
         return newSize;
     }
