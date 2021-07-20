@@ -181,7 +181,6 @@ class Hitbox
         this.size = size;
     }
 
-    //TODO: differenciate enter collision from stay collision
     static cleanAndUpdateHitboxes()
     {
         Hitbox.#_allHitBoxes.fastLoop(hitbox =>
@@ -271,7 +270,7 @@ class Entity extends GameObject
         ctx.fillStyle = transform.color;
         ctx.fillRect(x - width * .5, y - height * .5, width, height);
 
-        this.hitbox.draw(ctx);
+        // this.hitbox.draw(ctx);
     }
 
     destroy()
@@ -340,7 +339,7 @@ class SpriteSheet
     spriteSize;
 
     numberOfFrames;
-    currentFrame;
+    currentFrame = 0;
 
     _offset;
 
@@ -387,10 +386,10 @@ class SpriteSheet
             frameOffset, 0,
             spriteWidth, spriteHeight,
             //Drawing on Canvas
-            Math.floor(x - size.width * .5) + offX, Math.floor(y - size.height * .5) + offY,
+            x - Math.floor(size.width * .5) + offX, y - Math.floor(size.height * .5) + offY,
             size.width, size.height);
 
-        this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
+        setFrameInterval(() => this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames, 5);
     }
 }
 
