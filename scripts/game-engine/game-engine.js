@@ -114,12 +114,12 @@ class GameObject
 
 class Transform
 {
-    position = new Vector2();
+    position;
     velocity = new Vector2();
-    rotation = 0;
+    rotation;
 
-    color = DEFAULT_COLOR;
-    speed = 1;
+    color;
+    speed;
 
     constructor(startPosition = new Vector2(), rotation = 0, color = DEFAULT_COLOR, speed = 1,)
     {
@@ -158,45 +158,51 @@ class Hitbox
     static #_idEr = 0;
 
     collisionId;
+    tag;
 
-    size = { width: 50, height: 50 };
-    _offset = { offX: 0, offY: 0 };
-    position = new Vector2();
+    size;
+    position;
 
+    lastCollisions = [];
     collisions = [];
     isColliding = false;
 
-    collisionEvent = new ClassEvent(this);
+    onCollisionEnter = new ClassEvent(this);
+    onCollisionStay = new ClassEvent(this);
 
-    constructor(size = { width: 50, height: 50 }, position = new Vector2(), offset = { offX: 0, offY: 0 })
+    constructor(size = { width: 50, height: 50 }, position = new Vector2(), tag = 'No tag')
     {
+        this.tag = tag;
+
         this.collisionId = ++Hitbox.#_idEr;
         Hitbox.#_allHitBoxes.push(this);
 
         this.position = position;
         this.size = size;
-        this._offset = offset;
     }
 
-    static cleanHitboxes()
+    //TODO: differenciate enter collision from stay collision
+    static cleanAndUpdateHitboxes()
     {
         Hitbox.#_allHitBoxes.fastLoop(hitbox =>
         {
+            hitbox.lastCollisions = hitbox.collisions;
             hitbox.collisions = [];
             hitbox.isColliding = false;
         });
+
+        Hitbox.#_allHitBoxes.fastLoop(hitbox => hitbox.update());
     }
 
     addCollision(hitbox)
     {
         this.collisions.push(hitbox);
-        this.collisionEvent.notify(hitbox);
+        if (this.lastCollisions.indexOf(hitbox) !== -1) this.onCollisionStay.notify(hitbox);
+        else this.onCollisionEnter.notify(hitbox);
     }
 
     update()
     {
-        this.collisions = [];
-
         const { x, y } = this.position;
         const { width, height } = this.size;
 
@@ -228,11 +234,10 @@ class Hitbox
     draw(ctx)
     {
         const { x, y } = this.position;
-        const { offX, offY } = this._offset;
         const { width, height } = this.size;
 
         ctx.strokeStyle = this.isColliding ? "green" : "red";
-        ctx.strokeRect(x + offX, y + offY, width, height);
+        ctx.strokeRect(x - width * .5, y - height * .5, width, height);
     }
 
     destroy()
@@ -243,10 +248,10 @@ class Hitbox
 
 class Entity extends GameObject
 {
-    transform = new Transform();
-    _size = { width: 50, height: 50 };
+    transform;
+    _size;
 
-    hitbox = new Hitbox(this._size, this.transform.position);
+    hitbox;
     isMoving = false;
 
     constructor(transform = new Transform(), size = { width: 50, height: 50 }, hitbox = new Hitbox(size, transform.position))
@@ -257,11 +262,6 @@ class Entity extends GameObject
         this.hitbox = hitbox;
     }
 
-    update()
-    {
-        this.hitbox.update();
-    }
-
     draw(ctx)
     {
         const transform = this.transform;
@@ -269,7 +269,7 @@ class Entity extends GameObject
         const { width, height } = this._size;
 
         ctx.fillStyle = transform.color;
-        ctx.fillRect(x, y, width, height);
+        ctx.fillRect(x - width * .5, y - height * .5, width, height);
 
         this.hitbox.draw(ctx);
     }
@@ -283,8 +283,8 @@ class Entity extends GameObject
 
 class Vector2
 {
-    x = winWidth * .5;
-    y = winHeight * .5;
+    x;
+    y;
 
     constructor(x = winWidth * .5, y = winHeight * .5)
     {
@@ -336,50 +336,58 @@ class Vector2
 
 class SpriteSheet
 {
-    sprite = new Image();
-    spriteWidth = 32;
-    spriteHeight = 32;
+    sprite;
+    spriteSize;
 
-    numberOfFrames = 1;
-    currentFrame = 0;
+    numberOfFrames;
+    currentFrame;
 
-    constructor(name = "bagel.jpg", numberOfFrames = 1)
+    _offset;
+
+    constructor(name = "bagel.jpg", numberOfFrames = 1, offset = { offX: 0, offY: 0 })
     {
+        this.sprite = new Image();
         this.sprite.src = SPRITES_PATH + name;
 
-        this.spriteHeight = this.sprite.naturalHeight;
-        this.spriteWidth = this.sprite.naturalWidth / numberOfFrames;
+        this.spriteSize = { spriteWidth: this.sprite.naturalWidth / numberOfFrames, spriteHeight: this.sprite.naturalHeight }
 
         this.numberOfFrames = numberOfFrames;
+        this._offset = offset;
     }
 
     draw(ctx, { x, y }, frame = 0, sizeMultiplier = 1)
     {
-        const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
-        const frameOffset = frame * this.spriteWidth;
+        const { spriteWidth, spriteHeight } = this.spriteSize;
+        const size = { width: spriteWidth * sizeMultiplier, height: spriteHeight * sizeMultiplier }
+
+        const frameOffset = frame * spriteWidth;
+        const { offX, offY } = this._offset;
 
         ctx.drawImage(
             //Setting Frame
             this.sprite,
             frameOffset, 0,
-            this.spriteWidth, this.spriteHeight,
+            spriteWidth, spriteHeight,
             //Drawing on Canvas
-            x, y,
+            x - Math.floor(size.width * .5) + offX, y - Math.floor(size.height * .5) + offY,
             size.width, size.height);
     }
 
-    animate(ctx, position = new Vector2(), sizeMultiplier = 1)
+    animate(ctx, { x, y }, sizeMultiplier = 1)
     {
-        const size = { width: this.spriteWidth * sizeMultiplier, height: this.spriteHeight * sizeMultiplier }
-        const frameOffset = this.currentFrame * this.spriteWidth;
+        const { spriteWidth, spriteHeight } = this.spriteSize;
+        const size = { width: spriteWidth * sizeMultiplier, height: spriteHeight * sizeMultiplier }
+
+        const frameOffset = this.currentFrame * spriteWidth;
+        const { offX, offY } = this._offset;
 
         ctx.drawImage(
             //Setting Frame
             this.sprite,
             frameOffset, 0,
-            this.spriteWidth, this.spriteHeight,
+            spriteWidth, spriteHeight,
             //Drawing on Canvas
-            position.x, position.y,
+            Math.floor(x - size.width * .5) + offX, Math.floor(y - size.height * .5) + offY,
             size.width, size.height);
 
         this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
@@ -403,6 +411,7 @@ const startFpsCounting = () =>
 };
 
 let animationFrame, animationLoop;
+let gameFrame = 0;
 
 function cleanScreen(style)
 {
@@ -410,28 +419,35 @@ function cleanScreen(style)
     ctx.fillRect(0, 0, winWidth, winHeight);
 }
 
+function setFrameInterval(action, frame)
+{
+    if (gameFrame % frame === 0) action();
+}
+
 function animateFpsCount(backgroundStyle)
 {
     cleanScreen(backgroundStyle);
 
-    Hitbox.cleanHitboxes();
+    setFrameInterval(() => Hitbox.cleanAndUpdateHitboxes(), 2);
     SceneManager.updateGameObjectsWithRenderedCount();
     SceneManager.drawGameObjects();
 
     updateFps();
 
     animationFrame = requestAnimationFrame(animateFpsCount);
+    gameFrame++;
 }
 
 function justAnimate(backgroundStyle)
 {
     cleanScreen(backgroundStyle);
 
-    Hitbox.cleanHitboxes();
+    setFrameInterval(() => Hitbox.cleanAndUpdateHitboxes(), 2);
     SceneManager.updateGameObjects();
     SceneManager.drawGameObjects();
 
     animationFrame = requestAnimationFrame(justAnimate);
+    gameFrame++;
 }
 
 function startGame(style = "rgba(255,255,255, 1)", countFps = false)
@@ -458,8 +474,10 @@ export
     SpriteSheet,
     Transform,
     ClassEvent,
+    Hitbox,
 
     startGame,
     pauseGame,
-    resumeGame
+    resumeGame,
+    setFrameInterval
 }

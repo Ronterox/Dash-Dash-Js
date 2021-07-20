@@ -1,4 +1,4 @@
-import { ClassEvent, Entity, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
+import { ClassEvent, Entity, Hitbox, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
@@ -6,6 +6,7 @@ import { AudioManager, ENEMY_DEATH_SFX, ENEMY_HIT_SFX, ENEMY_SFX, ENEMY_SPAWN_SF
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
+const enemySprite = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
 
 export class Enemy extends Entity
 {
@@ -14,21 +15,26 @@ export class Enemy extends Entity
 
     isBeingKnockBack = false;
     _knockBackForce = 10;
-    _knockBackPosition = new Vector2();
+    _knockBackPosition;
 
-    _spriteSheet = new SpriteSheet();
+    _spriteSheet;
     _currentAnimation;
+    _multiplier;
 
     constructor(speed, player)
     {
         const startPos = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
         const randomColor = getRandomColor(100, 50);
-        const randomRadius = enemySizes.getRandomValue();
+        const randomSize = enemySizes.getRandomValue();
 
-        super(new Transform(startPos, 0, randomColor, speed), { width: randomRadius, height: randomRadius });
+        const sizeMultiplier = Math.floor(randomSize * .33);
+
+        super(new Transform(startPos, 0, randomColor, speed), { width: randomSize, height: randomSize },
+            new Hitbox({ width: enemySprite.spriteWidth * sizeMultiplier, height: enemySprite.spriteHeight * sizeMultiplier }, startPos));
 
         this._playerRef = player;
-        this._spriteSheet = new SpriteSheet("imp-anim.png", 7);
+        this._spriteSheet = enemySprite;
+        this._multiplier = sizeMultiplier;
     }
 
     awake()
@@ -38,7 +44,7 @@ export class Enemy extends Entity
         const growlSfx = AudioManager.playNewAudio(ENEMY_SFX, true);
         this._onKill.addListener(() => AudioManager.endAudio(growlSfx));
 
-        this.hitbox.collisionEvent.addListener((caller, hitbox) =>
+        this.hitbox.onCollisionEnter.addListener((caller, hitbox) =>
         {
             const player = this._playerRef;
 
@@ -47,12 +53,16 @@ export class Enemy extends Entity
                 this.moveAwayFrom(hitbox.position);
                 this.shrinkMyself(10);
             }
-        })
+        });
+
+        this.hitbox.onCollisionStay.addListener(() => console.log("Stay"))
     }
 
     update()
     {
-        super.update();
+        this._multiplier = Math.floor(this._size.width * .33);
+        const { spriteHeight } = this._spriteSheet.spriteSize;
+        this.hitbox.size = { width: spriteHeight * this._multiplier, height: spriteHeight * this._multiplier };
 
         if (!this.isMoving) return;
 
@@ -82,9 +92,9 @@ export class Enemy extends Entity
 
         const { x, y } = transform.position;
 
-        this._spriteSheet.draw(ctx, { x: x, y: y }, 0, Math.floor(this._size.width * .33));
+        this._spriteSheet.draw(ctx, { x: x, y: y }, 0, this._multiplier);
 
-        super.draw(ctx);
+        this.hitbox.draw(ctx);
 
         ctx.restore();
     }

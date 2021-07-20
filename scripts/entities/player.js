@@ -17,7 +17,7 @@ const trailSettings =
 export class Player extends Entity
 {
     isPointerDown = false;
-    targetPos = new Vector2();
+    targetPos;
 
     lightningTrailTop = new LightningTrail(trailSettings);
 
@@ -54,8 +54,6 @@ export class Player extends Entity
 
     update()
     {
-        super.update();
-
         if (!this.isMoving) return;
 
         const transform = this.transform;

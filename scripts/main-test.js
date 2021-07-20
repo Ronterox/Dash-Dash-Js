@@ -1,6 +1,7 @@
 import { Player } from "./entities/player.js";
 import { startGame, Vector2 } from "./game-engine/game-engine.js";
 import { hideStartScreen, PLAYER_COLOR, PLAYER_SPEED, setPauseButton, spawnEnemies } from "./game-config.js";
+import { Enemy } from "./entities/enemy.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
 {
@@ -41,6 +42,10 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
     //Creation of player
     const player = new Player(PLAYER_SPEED, PLAYER_COLOR);
+
+    const testEnemy = new Enemy(0, player);
+    const { x, y } = new Vector2();
+    testEnemy.transform.position.setValues(x, y);
 }
 
 hideStartScreen();
