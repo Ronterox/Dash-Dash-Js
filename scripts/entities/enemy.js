@@ -6,7 +6,6 @@ import { AudioManager, ENEMY_DEATH_SFX, ENEMY_HIT_SFX, ENEMY_SFX, ENEMY_SPAWN_SF
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
-const enemySprite = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
 
 export class Enemy extends Entity
 {
@@ -29,11 +28,10 @@ export class Enemy extends Entity
 
         const sizeMultiplier = Math.floor(randomSize * .33);
 
-        super(new Transform(startPos, 0, randomColor, speed), { width: randomSize, height: randomSize },
-            new Hitbox({ width: enemySprite.spriteWidth * sizeMultiplier, height: enemySprite.spriteHeight * sizeMultiplier }, startPos));
+        super(new Transform(startPos, 0, randomColor, speed), { width: randomSize, height: randomSize });
 
         this._playerRef = player;
-        this._spriteSheet = enemySprite;
+        this._spriteSheet = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
         this._multiplier = sizeMultiplier;
     }
 
@@ -54,8 +52,6 @@ export class Enemy extends Entity
                 this.shrinkMyself(10);
             }
         });
-
-        this.hitbox.onCollisionStay.addListener(() => console.log("Stay"))
     }
 
     update()
@@ -92,9 +88,9 @@ export class Enemy extends Entity
 
         const { x, y } = transform.position;
 
-        this._spriteSheet.draw(ctx, { x: x, y: y }, 0, this._multiplier);
+        this._spriteSheet.animate(ctx, { x: x, y: y }, this._multiplier);
 
-        this.hitbox.draw(ctx);
+        // this.hitbox.draw(ctx);
 
         ctx.restore();
     }
