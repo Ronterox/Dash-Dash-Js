@@ -181,7 +181,6 @@ class Hitbox
         this.size = size;
     }
 
-    //TODO: differenciate enter collision from stay collision
     static cleanAndUpdateHitboxes()
     {
         Hitbox.#_allHitBoxes.fastLoop(hitbox =>
@@ -246,6 +245,18 @@ class Hitbox
     }
 }
 
+class Size
+{
+    width;
+    height
+
+    constructor(width = 40, height = 40)
+    {
+        this.width = width;
+        this.height = height;
+    }
+}
+
 class Entity extends GameObject
 {
     transform;
@@ -254,7 +265,7 @@ class Entity extends GameObject
     hitbox;
     isMoving = false;
 
-    constructor(transform = new Transform(), size = { width: 50, height: 50 }, hitbox = new Hitbox(size, transform.position))
+    constructor(transform = new Transform(), size = new Size(), hitbox = new Hitbox(size, transform.position))
     {
         super();
         this.transform = transform;
@@ -271,7 +282,7 @@ class Entity extends GameObject
         ctx.fillStyle = transform.color;
         ctx.fillRect(x - width * .5, y - height * .5, width, height);
 
-        this.hitbox.draw(ctx);
+        // this.hitbox.draw(ctx);
     }
 
     destroy()
@@ -302,24 +313,24 @@ class Vector2
         return [this.x, this.y];
     }
 
-    add(otherVector)
+    add({ x, y })
     {
-        this.x += otherVector.x;
-        this.y += otherVector.y;
+        this.x += x;
+        this.y += y;
         return this;
     }
 
-    substract(otherVector)
+    substract({ x, y })
     {
-        this.x -= otherVector.x;
-        this.y -= otherVector.y;
+        this.x -= x;
+        this.y -= y;
         return this;
     }
 
-    setVector(otherVector)
+    setVector({ x, y })
     {
-        this.x = otherVector.x;
-        this.y = otherVector.y;
+        this.x = x;
+        this.y = y;
     }
 
     setValues(x, y)
@@ -331,6 +342,7 @@ class Vector2
     static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
 
     //TODO: Obtain distance without using sqr root
+    //Square magnitude maybe
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
@@ -340,7 +352,7 @@ class SpriteSheet
     spriteSize;
 
     numberOfFrames;
-    currentFrame;
+    currentFrame = 0;
 
     _offset;
 
@@ -373,6 +385,14 @@ class SpriteSheet
             size.width, size.height);
     }
 
+    //TODO: cooler state like sprite sheet
+    //Change the current animation state of the sprite sheet
+    //Save each frame position automatically for each state
+    //Load normal and flipped sprite sheet version
+
+    //TODO: check which way of animating is faster
+    //The weird formula he used
+    //Your frame interval
     animate(ctx, { x, y }, sizeMultiplier = 1)
     {
         const { spriteWidth, spriteHeight } = this.spriteSize;
@@ -387,10 +407,10 @@ class SpriteSheet
             frameOffset, 0,
             spriteWidth, spriteHeight,
             //Drawing on Canvas
-            Math.floor(x - size.width * .5) + offX, Math.floor(y - size.height * .5) + offY,
+            x - Math.floor(size.width * .5) + offX, y - Math.floor(size.height * .5) + offY,
             size.width, size.height);
 
-        this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
+        setFrameInterval(() => this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames, 5);
     }
 }
 
@@ -475,6 +495,7 @@ export
     Transform,
     ClassEvent,
     Hitbox,
+    Size,
 
     startGame,
     pauseGame,

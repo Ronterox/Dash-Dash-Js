@@ -77,7 +77,11 @@ export class Player extends Entity
         const newPos = transform.position.asValue;
 
         const offset = 20;
-        this.lightningTrailTop.addTrail(new Vector2(oldPos.x + offset, oldPos.y + offset), new Vector2(newPos.x + offset, newPos.y + offset));
+
+        oldPos.add({ x: offset, y: offset });
+        newPos.add({ x: offset, y: offset });
+
+        this.lightningTrailTop.addTrail(oldPos, newPos);
     }
 
     draw(ctx)
@@ -122,9 +126,9 @@ export class Player extends Entity
         ctx.lineWidth = ARMS_WIDTH;
 
         //Hands constants
-        const elbowConnection = x + 50;
+        const elbowConnection = x + 30;
         const armsLength = x + width + ARMS_LENGTH;
-        const shoulderYOffset = 30;
+        const shoulderYOffset = 20;
         const handsYOffset = 5;
 
         // Right Hand

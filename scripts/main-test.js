@@ -42,10 +42,6 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
     //Creation of player
     const player = new Player(PLAYER_SPEED, PLAYER_COLOR);
-
-    const testEnemy = new Enemy(0, player);
-    const { x, y } = new Vector2();
-    testEnemy.transform.position.setValues(x, y);
 }
 
 hideStartScreen();

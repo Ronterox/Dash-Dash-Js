@@ -1,4 +1,4 @@
-import { ClassEvent, Entity, Hitbox, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
+import { ClassEvent, Entity, Size, SpriteSheet, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { winHeight, winWidth } from "../game-engine/config.js";
 import { Particle } from "../game-engine/particle-system.js";
 import { getRandomColor, getRandomInteger } from "../utils/utilities.js";
@@ -6,7 +6,6 @@ import { AudioManager, ENEMY_DEATH_SFX, ENEMY_HIT_SFX, ENEMY_SFX, ENEMY_SPAWN_SF
 import { playBackgroundMusicOnFirstAttack } from "../game-config.js";
 
 const enemySizes = [10, 20, 30, 40];
-const enemySprite = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
 
 export class Enemy extends Entity
 {
@@ -29,11 +28,10 @@ export class Enemy extends Entity
 
         const sizeMultiplier = Math.floor(randomSize * .33);
 
-        super(new Transform(startPos, 0, randomColor, speed), { width: randomSize, height: randomSize },
-            new Hitbox({ width: enemySprite.spriteWidth * sizeMultiplier, height: enemySprite.spriteHeight * sizeMultiplier }, startPos));
+        super(new Transform(startPos, 0, randomColor, speed), new Size(randomSize, randomSize));
 
         this._playerRef = player;
-        this._spriteSheet = enemySprite;
+        this._spriteSheet = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
         this._multiplier = sizeMultiplier;
     }
 
@@ -54,8 +52,6 @@ export class Enemy extends Entity
                 this.shrinkMyself(10);
             }
         });
-
-        this.hitbox.onCollisionStay.addListener(() => console.log("Stay"))
     }
 
     update()
@@ -81,6 +77,9 @@ export class Enemy extends Entity
     }
 
     //TODO: if necessary more speed, fix this use of save for shadows
+    //Check enemies on a different array and draw them there together
+    //TODO: flip sprite to look at player
+    //Save a flip image of the same sprite sheet and change the image when drawing (since faster than flipping canvas)
     draw(ctx)
     {
         ctx.save();
@@ -92,9 +91,9 @@ export class Enemy extends Entity
 
         const { x, y } = transform.position;
 
-        this._spriteSheet.draw(ctx, { x: x, y: y }, 0, this._multiplier);
+        this._spriteSheet.animate(ctx, { x: x, y: y }, this._multiplier);
 
-        this.hitbox.draw(ctx);
+        // this.hitbox.draw(ctx);
 
         ctx.restore();
     }
@@ -136,7 +135,7 @@ export class Enemy extends Entity
         const { width, height } = this._size;
 
         const newSize = { width: width - sizeReduce, height: height - sizeReduce };
-        this._currentAnimation = gsap.to(this, { _size: newSize });
+        this._currentAnimation = gsap.to(this._size, { width: newSize.width, height: newSize.height });
 
         return newSize;
     }
