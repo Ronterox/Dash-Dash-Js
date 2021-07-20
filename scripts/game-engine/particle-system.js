@@ -1,4 +1,4 @@
-import { Entity, GameObject, Transform, Vector2 } from "./game-engine.js";
+import { GameObject, Transform, Vector2 } from "./game-engine.js";
 import { DEFAULT_COLOR, DEFAULT_RGB, winHeight, winWidth } from "./config.js";
 import { getRandomFloat } from "../utils/utilities.js";
 
@@ -24,6 +24,7 @@ class Particle extends GameObject
         } : () =>
         {
             //TODO: if we check for object inside of screen again, make method (utility)
+            //Pretty self explanatory, put it on the utilities.js
             const { x, y } = this.transform.position;
             if (x < 0 || x > winWidth || y < 0 || y > winHeight) this.destroy();
         }
@@ -98,7 +99,7 @@ class LightningLine
         ctx.lineWidth = this.thickness;
         ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
         ctx.shadowBlur = this.shadow;
-        ctx.shadowColor = "#BD9DF2";
+        ctx.shadowColor = "#bd9df2";
         ctx.stroke();
 
         ctx.closePath();
@@ -129,11 +130,20 @@ class LightningTrail extends GameObject
         this._fadeSpeed = fadeSpeed;
     }
 
+    //TODO: lightning effect for trail
+    //If there is no trail before start position offset is random
+    //If there is trail before start is the end of before
+    //The end offset is random in both
     addTrail(start, end)
     {
         this._trail.push(new LightningLine(start, end, this._rgb, this._shadow, this._thickness, this._opacity, this._fadeSpeed));
     }
 
+    //TODO: pool trails
+    //Everytime they add a new trail check if is full
+    //Instead of splicing old ones enable/disable respectively
+    //Reposition old ones and change opacity back to 1
+    //Check if trail is disable and skip it for performance
     update()
     {
         const length = this._trail.length;

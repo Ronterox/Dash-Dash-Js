@@ -250,7 +250,7 @@ class Size
     width;
     height
 
-    constructor(width = 30, height = 30)
+    constructor(width = 40, height = 40)
     {
         this.width = width;
         this.height = height;
@@ -313,24 +313,24 @@ class Vector2
         return [this.x, this.y];
     }
 
-    add(otherVector)
+    add({ x, y })
     {
-        this.x += otherVector.x;
-        this.y += otherVector.y;
+        this.x += x;
+        this.y += y;
         return this;
     }
 
-    substract(otherVector)
+    substract({ x, y })
     {
-        this.x -= otherVector.x;
-        this.y -= otherVector.y;
+        this.x -= x;
+        this.y -= y;
         return this;
     }
 
-    setVector(otherVector)
+    setVector({ x, y })
     {
-        this.x = otherVector.x;
-        this.y = otherVector.y;
+        this.x = x;
+        this.y = y;
     }
 
     setValues(x, y)
@@ -342,6 +342,7 @@ class Vector2
     static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
 
     //TODO: Obtain distance without using sqr root
+    //Square magnitude maybe
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
@@ -384,6 +385,14 @@ class SpriteSheet
             size.width, size.height);
     }
 
+    //TODO: cooler state like sprite sheet
+    //Change the current animation state of the sprite sheet
+    //Save each frame position automatically for each state
+    //Load normal and flipped sprite sheet version
+
+    //TODO: check which way of animating is faster
+    //The weird formula he used
+    //Your frame interval
     animate(ctx, { x, y }, sizeMultiplier = 1)
     {
         const { spriteWidth, spriteHeight } = this.spriteSize;
