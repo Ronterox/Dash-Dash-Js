@@ -66,12 +66,11 @@ export class Enemy extends Entity
         const playerPosition = player.transform.position;
 
         const transform = this.transform;
-        const characterNextMovementArea = this._size.width;
 
         if (this.isBeingKnockBack)
         {
             transform.moveToPosition(this._knockBackPosition, this._knockBackForce);
-            this.isBeingKnockBack = Vector2.distance(this._knockBackPosition, transform.position) > characterNextMovementArea;
+            this.isBeingKnockBack = Vector2.sqrMagnitude(this._knockBackPosition.asValue.substract(transform.position)) > this._size.width;
         }
         else transform.moveToPosition(playerPosition);
     }

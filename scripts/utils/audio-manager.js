@@ -19,11 +19,9 @@ class AudioManager
         const audio = new Audio(path)
 
         audio.onerror = () => this.playAudio(MISSING_AUDIO);
-        audio.onloadeddata = () =>
-        {
-            this.#playAudioClass(audio, loop);
-            return audio;
-        }
+        audio.onloadeddata = () => this.#playAudioClass(audio, loop);
+
+        return audio;
     }
 
     static loadAudio(path, name = "")

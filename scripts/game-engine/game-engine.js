@@ -341,8 +341,6 @@ class Vector2
 
     static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
 
-    //TODO: Obtain distance without using sqr root
-    //Square magnitude maybe
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
