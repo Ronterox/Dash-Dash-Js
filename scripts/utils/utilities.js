@@ -1,3 +1,5 @@
+import { winHeight, winWidth } from "../game-engine/config.js";
+
 const getRandomColor = (saturation = 50, lightness = 50) => `hsl(${Math.random() * 360}, ${saturation}%, ${lightness}%)`;
 const getRandomFloat = (min, max) => Math.random() * (max - min + 1) + min;
 const getRandomInteger = (min, max) => Math.floor(getRandomFloat(min, max));
@@ -42,9 +44,17 @@ Array.prototype.deleteIndexOf = function (obj)
     if (index !== -1) this.swapDelete(index);
 }
 
+function checkForOutOfBounds({ x, y }, action)
+{
+    const isOutOfBounds = x < 0 || x > winWidth || y < 0 || y > winHeight;
+    action(isOutOfBounds);
+    return isOutOfBounds;
+}
+
 export
 {
     getRandomColor,
     getRandomFloat,
-    getRandomInteger
+    getRandomInteger,
+    checkForOutOfBounds
 }

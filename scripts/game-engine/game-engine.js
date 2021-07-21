@@ -1,4 +1,5 @@
 import { ctx, DEFAULT_COLOR, SPRITES_PATH, winHeight, winWidth } from "./config.js";
+import { checkForOutOfBounds } from "../utils/utilities.js";
 
 //Set it to pixel art
 ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
@@ -87,7 +88,7 @@ class GameObject
 
     constructor()
     {
-        this._name = this.constructor['_name'];
+        this._name = this.constructor['name'];
         SceneManager.addGameObject(this);
     }
 
@@ -129,6 +130,12 @@ class Transform
         this.speed = speed;
     }
 
+    /**
+     * Tries to move to the selected position by a little, calculating its velocity by the speed and angle
+     * @param position target position
+     * @param speed optional speed
+     * @returns {boolean} false if out of bounds, true if completed movement
+     */
     moveToPosition(position, speed = this.speed)
     {
         const myPosition = this.position;
@@ -136,7 +143,13 @@ class Transform
         this.rotation = Math.atan2(position.y - myPosition.y, position.x - myPosition.x);
 
         this.velocity.setValues(Math.cos(this.rotation) * speed, Math.sin(this.rotation) * speed);
-        myPosition.add(this.velocity);
+
+        const newPosition = myPosition.asValue.add(this.velocity);
+
+        return checkForOutOfBounds(newPosition, isOutOfBounds =>
+        {
+            if (!isOutOfBounds) myPosition.setValues(newPosition.x, newPosition.y);
+        });
     }
 
     updateMovement()
@@ -341,8 +354,6 @@ class Vector2
 
     static sqrMagnitude = (vector) => vector.x * vector.x + vector.y * vector.y;
 
-    //TODO: Obtain distance without using sqr root
-    //Square magnitude maybe
     static distance = (leftVector, rightVector) => Math.hypot(leftVector.x - rightVector.x, leftVector.y - rightVector.y);
 }
 
