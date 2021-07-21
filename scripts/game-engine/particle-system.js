@@ -1,6 +1,6 @@
 import { GameObject, Transform, Vector2 } from "./game-engine.js";
 import { DEFAULT_COLOR, DEFAULT_RGB, winHeight, winWidth } from "./config.js";
-import { getRandomFloat } from "../utils/utilities.js";
+import { getRandomFloat, getRandomInteger } from "../utils/utilities.js";
 
 class Particle extends GameObject
 {
@@ -99,7 +99,7 @@ class LightningLine
         ctx.lineWidth = this.thickness;
         ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
         ctx.shadowBlur = this.shadow;
-        ctx.shadowColor = "#bd9df2";
+        ctx.shadowColor = "#BD9DF2";
         ctx.stroke();
 
         ctx.closePath();
@@ -130,12 +130,20 @@ class LightningTrail extends GameObject
         this._fadeSpeed = fadeSpeed;
     }
 
-    //TODO: lightning effect for trail
-    //If there is no trail before start position offset is random
-    //If there is trail before start is the end of before
-    //The end offset is random in both
     addTrail(start, end)
     {
+        const trail = this._trail;
+
+        if (trail.length > 0)
+        {
+            const lastTrail = trail[trail.length - 1];
+            start = lastTrail.end;
+        }
+
+        const offset = 75;
+        start.x += getRandomInteger(-offset, offset);
+        start.y += getRandomInteger(-offset, offset);
+
         this._trail.push(new LightningLine(start, end, this._rgb, this._shadow, this._thickness, this._opacity, this._fadeSpeed));
     }
 

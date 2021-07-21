@@ -20,10 +20,19 @@ export class Player extends Entity
     targetPos;
 
     lightningTrailTop = new LightningTrail(trailSettings);
+    lightningTrailMiddle = new LightningTrail(trailSettings);
+    lightningTrailBottom = new LightningTrail(trailSettings);
 
     constructor(speed = 50, color = DEFAULT_COLOR)
     {
         super(new Transform(new Vector2(), 0, color, speed));
+
+        const orangeRgb = { r: 255, g: 180, b: 0 };
+        this.lightningTrailTop._rgb = orangeRgb;
+        this.lightningTrailBottom._rgb = orangeRgb;
+
+        const { width, height } = this._size;
+        this.hitbox.size = { width: width * 2, height: height * 2 };
     }
 
     awake()
@@ -76,12 +85,14 @@ export class Player extends Entity
 
         const newPos = transform.position.asValue;
 
-        const offset = 20;
+        const trailsOffset = 20;
 
-        oldPos.add({ x: offset, y: offset });
-        newPos.add({ x: offset, y: offset });
+        const [oldX, oldY] = oldPos.asArray;
+        const [newX, newY] = newPos.asArray;
 
-        this.lightningTrailTop.addTrail(oldPos, newPos);
+        this.lightningTrailTop.addTrail(new Vector2(oldX - trailsOffset, oldY - trailsOffset), new Vector2(newX - trailsOffset, newY - trailsOffset));
+        this.lightningTrailMiddle.addTrail(oldPos, newPos);
+        this.lightningTrailBottom.addTrail(new Vector2(oldX + trailsOffset, oldY + trailsOffset), new Vector2(newX + trailsOffset, newY + trailsOffset));
     }
 
     draw(ctx)
