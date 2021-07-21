@@ -140,7 +140,7 @@ class LightningTrail extends GameObject
             start = lastTrail.end;
         }
 
-        const offset = 75;
+        const offset = 65;
         start.x += getRandomInteger(-offset, offset);
         start.y += getRandomInteger(-offset, offset);
 

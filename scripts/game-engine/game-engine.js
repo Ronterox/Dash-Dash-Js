@@ -87,7 +87,7 @@ class GameObject
 
     constructor()
     {
-        this._name = this.constructor['_name'];
+        this._name = this.constructor['name'];
         SceneManager.addGameObject(this);
     }
 

@@ -40,7 +40,7 @@ export class Player extends Entity
         AudioManager.playNewAudio(PLAYER_IDLE_SFX);
 
         this.targetPos = mouseInput.mousePosition;
-        const game = document;
+        /*const game = document;
 
         game.addEventListener("click", (click) =>
         {
@@ -58,7 +58,7 @@ export class Player extends Entity
         game.addEventListener("mousemove", () =>
         {
             if (this.isPointerDown) this.isMoving = true;
-        })
+        })*/
     }
 
     update()
