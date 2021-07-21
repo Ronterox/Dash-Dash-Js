@@ -97,6 +97,10 @@ export class Enemy extends Entity
         ctx.restore();
     }
 
+    //TODO: move this to a transform method
+    //Pass this a function of transform class
+    //Pass it a speed
+    //Return the knockback position
     moveAwayFrom({ x, y })
     {
         this.isBeingKnockBack = true;

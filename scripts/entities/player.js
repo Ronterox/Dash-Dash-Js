@@ -1,5 +1,4 @@
 import { Entity, Transform, Vector2 } from "../game-engine/game-engine.js";
-import { mouseInput } from "../game-engine/input.js";
 import { LightningTrail } from "../game-engine/particle-system.js";
 import { DEFAULT_COLOR, DEFAULT_RGB } from "../game-engine/config.js";
 import { AudioManager, PLAYER_IDLE_SFX } from "../utils/audio-manager.js";
@@ -38,27 +37,6 @@ export class Player extends Entity
     awake()
     {
         AudioManager.playNewAudio(PLAYER_IDLE_SFX);
-
-        this.targetPos = mouseInput.mousePosition;
-        /*const game = document;
-
-        game.addEventListener("click", (click) =>
-        {
-            this.isMoving = true
-            this.targetPos = new Vector2(click.clientX, click.clientY);
-        });
-
-        game.addEventListener("pointerdown", () =>
-        {
-            this.isPointerDown = true
-            this.targetPos = mouseInput.mousePosition;
-        });
-        game.addEventListener("pointerup", () => this.isPointerDown = false);
-
-        game.addEventListener("mousemove", () =>
-        {
-            if (this.isPointerDown) this.isMoving = true;
-        })*/
     }
 
     update()
@@ -67,11 +45,7 @@ export class Player extends Entity
 
         const transform = this.transform;
 
-        if (Vector2.distance(this.targetPos, transform.position) > transform.speed * .5)
-        {
-            if (this.isPointerDown) transform.moveToPosition(this.targetPos);
-            else this.moveWithTrail();
-        }
+        if (Vector2.distance(this.targetPos, transform.position) > transform.speed * .5) this.moveWithTrail();
         else this.isMoving = false;
     }
 
@@ -81,7 +55,7 @@ export class Player extends Entity
 
         const oldPos = transform.position.asValue;
 
-        transform.moveToPosition(this.targetPos);
+        const isOutOfBounds = transform.moveToPosition(this.targetPos);
 
         const newPos = transform.position.asValue;
 
@@ -89,6 +63,23 @@ export class Player extends Entity
 
         const [oldX, oldY] = oldPos.asArray;
         const [newX, newY] = newPos.asArray;
+
+        if (isOutOfBounds)
+        {
+            //TODO: Get this as a transform method
+            //Pass this a function of transform class
+            //Pass it a speed
+            //Return the knockback position
+            const [myX, myY] = this.transform.position.asArray;
+            const differenceX = oldX - myX, differenceY = oldX - myY;
+
+            //TODO: calculate this velocity differently
+            //Maybe this is okay
+            //But reduce it a little
+            const speed = Vector2.sqrMagnitude(transform.velocity);
+
+            this.targetPos = new Vector2(myX + differenceX * speed, myY + differenceY * speed);
+        }
 
         this.lightningTrailTop.addTrail(new Vector2(oldX - trailsOffset, oldY - trailsOffset), new Vector2(newX - trailsOffset, newY - trailsOffset));
         this.lightningTrailMiddle.addTrail(oldPos, newPos);

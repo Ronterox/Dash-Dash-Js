@@ -1,6 +1,6 @@
 import { GameObject, Transform, Vector2 } from "./game-engine.js";
-import { DEFAULT_COLOR, DEFAULT_RGB, winHeight, winWidth } from "./config.js";
-import { getRandomFloat, getRandomInteger } from "../utils/utilities.js";
+import { DEFAULT_COLOR, DEFAULT_RGB} from "./config.js";
+import { checkForOutOfBounds, getRandomFloat, getRandomInteger } from "../utils/utilities.js";
 
 class Particle extends GameObject
 {
@@ -21,13 +21,7 @@ class Particle extends GameObject
         {
             this.alpha -= 0.001;
             if (this.alpha <= 0) this.destroy();
-        } : () =>
-        {
-            //TODO: if we check for object inside of screen again, make method (utility)
-            //Pretty self explanatory, put it on the utilities.js
-            const { x, y } = this.transform.position;
-            if (x < 0 || x > winWidth || y < 0 || y > winHeight) this.destroy();
-        }
+        } : () => checkForOutOfBounds(this.transform.position, () => this.destroy());
     }
 
     update()

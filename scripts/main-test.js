@@ -60,24 +60,27 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
             this._startPosition = null;
             this._stiffness = stiffness;
             this._length = length;
+            //TODO: Make this so calling the player movement can be more understandable
+            //If the calculus can still be on the player, but has to be more readable
+            //If you are gonna change the is moving, maybe add the whole method to the player
             this._playerRef = playerRef;
         }
 
         awake()
         {
-            document.addEventListener("pointerdown", pointer =>
+            document.addEventListener("pointerdown", () =>
             {
-                const { clientX, clientY } = pointer;
-
-                this._startPosition = new Vector2(clientX, clientY);
-                if (this._playerRef) this._playerRef.transform.position = this._startPosition;
+                if (this._playerRef) this._startPosition = this._playerRef.transform.position;
             });
+
             document.addEventListener("pointerup", () =>
             {
-                const multipleir = 2;
+                //TODO: Calculate speed by distance
+                //Depending of the pulling distance more speed
+                const multiplier = 1.4;
                 const { x, y } = this._startPosition.asValue.substract(this._targetPos);
 
-                this._playerRef.targetPos = this._playerRef.transform.position.asValue.add({ x: x * multipleir, y: y * multipleir });
+                this._playerRef.targetPos = this._playerRef.transform.position.asValue.add({ x: Math.floor(x * multiplier), y: Math.floor(y * multiplier) });
                 this._playerRef.isMoving = true;
 
                 this._startPosition = null
@@ -122,11 +125,6 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
                 ctx.stroke();
             }
-        }
-
-        attach(playerRef)
-        {
-            this._playerRef = playerRef;
         }
     }
 
