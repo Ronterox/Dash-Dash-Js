@@ -2,6 +2,7 @@ import { Entity, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { LightningTrail } from "../game-engine/particle-system.js";
 import { DEFAULT_COLOR, DEFAULT_RGB } from "../game-engine/config.js";
 import { AudioManager, PLAYER_IDLE_SFX } from "../utils/audio-manager.js";
+import { doOutOfBounds } from "../utils/utilities.js";
 
 const trailSettings =
     {
@@ -22,9 +23,9 @@ export class Player extends Entity
     lightningTrailMiddle = new LightningTrail(trailSettings);
     lightningTrailBottom = new LightningTrail(trailSettings);
 
-    constructor(speed = 50, color = DEFAULT_COLOR)
+    constructor(acceleration = 50, color = DEFAULT_COLOR)
     {
-        super(new Transform(new Vector2(), 0, color, speed));
+        super(new Transform(new Vector2(), 0, color, acceleration));
 
         const orangeRgb = { r: 255, g: 180, b: 0 };
         this.lightningTrailTop._rgb = orangeRgb;
@@ -44,8 +45,9 @@ export class Player extends Entity
         if (!this.isMoving) return;
 
         const transform = this.transform;
+        const width = this._size.width;
 
-        if (Vector2.distance(this.targetPos, transform.position) > transform.speed * .5) this.moveWithTrail();
+        if (Vector2.sqrMagnitude(this.targetPos.asValue.substract(transform.position)) > width * width) this.moveWithTrail();
         else this.isMoving = false;
     }
 
@@ -55,7 +57,7 @@ export class Player extends Entity
 
         const oldPos = transform.position.asValue;
 
-        const isOutOfBounds = transform.moveToPosition(this.targetPos);
+        transform.moveToPosition(this.targetPos);
 
         const newPos = transform.position.asValue;
 
@@ -64,22 +66,18 @@ export class Player extends Entity
         const [oldX, oldY] = oldPos.asArray;
         const [newX, newY] = newPos.asArray;
 
-        if (isOutOfBounds)
+        //TODO: Obtain side of bounding leave, and randomize bouncing
+        //Enumerator: Top, Bottom, Left, Right
+        //Random Range between knockback position depending of bounding used to leave
+        doOutOfBounds(newPos, () =>
         {
-            //TODO: Get this as a transform method
-            //Pass this a function of transform class
-            //Pass it a speed
-            //Return the knockback position
-            const [myX, myY] = this.transform.position.asArray;
-            const differenceX = oldX - myX, differenceY = oldX - myY;
+            const { x, y } = transform.velocity;
+            const speed = Math.abs(x - y);
 
-            //TODO: calculate this velocity differently
-            //Maybe this is okay
-            //But reduce it a little
-            const speed = Vector2.sqrMagnitude(transform.velocity);
+            transform.position.setVector(oldPos);
 
-            this.targetPos = new Vector2(myX + differenceX * speed, myY + differenceY * speed);
-        }
+            this.targetPos = transform.getKnockbackPositionFrom(newPos, speed);
+        });
 
         this.lightningTrailTop.addTrail(new Vector2(oldX - trailsOffset, oldY - trailsOffset), new Vector2(newX - trailsOffset, newY - trailsOffset));
         this.lightningTrailMiddle.addTrail(oldPos, newPos);
@@ -101,7 +99,7 @@ export class Player extends Entity
         super.draw(ctx);
 
         //Rotate character to movement direction
-        transform.rotate(ctx, transform.rotation, { x, y });
+        transform.rotate(ctx, transform._rotation, { x, y });
 
         const drawSword = (edgeColor = DEFAULT_COLOR, handleColor = DEFAULT_COLOR) =>
         {
@@ -123,7 +121,7 @@ export class Player extends Entity
         const ARMS_LENGTH = 20, ARMS_WIDTH = 8;
 
         ctx.beginPath()
-        ctx.strokeStyle = transform.color;
+        ctx.strokeStyle = transform._color;
         ctx.lineCap = "round";
         ctx.lineWidth = ARMS_WIDTH;
 

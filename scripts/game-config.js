@@ -62,7 +62,7 @@ const playBackgroundMusicOnFirstAttack = () =>
     }
 }
 
-const PLAYER_COLOR = 'yellow', PLAYER_SPEED = 90;
+const PLAYER_COLOR = 'yellow', PLAYER_ACCELERATION = 90;
 
 export
 {
@@ -72,5 +72,5 @@ export
     playBackgroundMusicOnFirstAttack,
 
     PLAYER_COLOR,
-    PLAYER_SPEED
+    PLAYER_ACCELERATION
 }

@@ -20,7 +20,7 @@ export class Enemy extends Entity
     _currentAnimation;
     _multiplier;
 
-    constructor(speed, player)
+    constructor(acceleration, player)
     {
         const startPos = new Vector2(Math.random() * winWidth, Math.random() * winHeight);
         const randomColor = getRandomColor(100, 50);
@@ -28,7 +28,7 @@ export class Enemy extends Entity
 
         const sizeMultiplier = Math.floor(randomSize * .33);
 
-        super(new Transform(startPos, 0, randomColor, speed), new Size(randomSize, randomSize));
+        super(new Transform(startPos, 0, randomColor, acceleration), new Size(randomSize, randomSize));
 
         this._playerRef = player;
         this._spriteSheet = new SpriteSheet("imp-anim.png", 7, { offX: 30, offY: 0 });
@@ -48,7 +48,7 @@ export class Enemy extends Entity
 
             if (hitbox.collisionId === player.hitbox.collisionId && player.isMoving && !player.isPointerDown)
             {
-                this.moveAwayFrom(hitbox.position);
+                this.knockbackAwayFrom(hitbox.position);
                 this.shrinkMyself(10);
             }
         });
@@ -70,6 +70,7 @@ export class Enemy extends Entity
         if (this.isBeingKnockBack)
         {
             transform.moveToPosition(this._knockBackPosition, this._knockBackForce);
+            console.log(Vector2.sqrMagnitude(this._knockBackPosition.asValue.substract(transform.position)), this._size.width)
             this.isBeingKnockBack = Vector2.sqrMagnitude(this._knockBackPosition.asValue.substract(transform.position)) > this._size.width;
         }
         else transform.moveToPosition(playerPosition);
@@ -86,7 +87,7 @@ export class Enemy extends Entity
         const transform = this.transform;
 
         ctx.shadowBlur = 12;
-        ctx.shadowColor = transform.color;
+        ctx.shadowColor = transform._color;
 
         const { x, y } = transform.position;
 
@@ -97,18 +98,10 @@ export class Enemy extends Entity
         ctx.restore();
     }
 
-    //TODO: move this to a transform method
-    //Pass this a function of transform class
-    //Pass it a speed
-    //Return the knockback position
-    moveAwayFrom({ x, y })
+    knockbackAwayFrom({ x, y })
     {
         this.isBeingKnockBack = true;
-
-        const [myX, myY] = this.transform.position.asArray;
-        const differenceX = x - myX, differenceY = y - myY;
-
-        this._knockBackPosition = new Vector2(myX + differenceX * this._knockBackForce, myY + differenceY * this._knockBackForce);
+        this._knockBackPosition = this.transform.getKnockbackPositionFrom({ x, y }, this._knockBackForce);
     }
 
     shrinkMyself(size)

@@ -1,6 +1,6 @@
 import { GameObject, Transform, Vector2 } from "./game-engine.js";
 import { DEFAULT_COLOR, DEFAULT_RGB} from "./config.js";
-import { checkForOutOfBounds, getRandomFloat, getRandomInteger } from "../utils/utilities.js";
+import { doOutOfBounds, getRandomFloat, getRandomInteger } from "../utils/utilities.js";
 
 class Particle extends GameObject
 {
@@ -21,7 +21,7 @@ class Particle extends GameObject
         {
             this.alpha -= 0.001;
             if (this.alpha <= 0) this.destroy();
-        } : () => checkForOutOfBounds(this.transform.position, () => this.destroy());
+        } : () => doOutOfBounds(this.transform.position, () => this.destroy());
     }
 
     update()

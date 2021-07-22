@@ -1,6 +1,6 @@
 import { Player } from "./entities/player.js";
 import { GameObject, startGame, Vector2 } from "./game-engine/game-engine.js";
-import { hideStartScreen, PLAYER_COLOR, PLAYER_SPEED, setPauseButton, spawnEnemies } from "./game-config.js";
+import { hideStartScreen, PLAYER_COLOR, PLAYER_ACCELERATION, setPauseButton, spawnEnemies } from "./game-config.js";
 import { mouseInput } from "./game-engine/input.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
@@ -41,7 +41,7 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     createButton("Start Spawning", () => enemySpawner = startSpawningEnemies());
 
     //Creation of player
-    const player = new Player(PLAYER_SPEED, PLAYER_COLOR);
+    const player = new Player(PLAYER_ACCELERATION, PLAYER_COLOR);
 
     class Slingshot extends GameObject
     {
@@ -53,6 +53,7 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
         _targetPos = new Vector2();
 
         _playerRef;
+        _color;
 
         constructor(stiffness = 0, length = 250, playerRef)
         {
@@ -68,19 +69,19 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
         awake()
         {
-            document.addEventListener("pointerdown", () =>
-            {
-                if (this._playerRef) this._startPosition = this._playerRef.transform.position;
-            });
+            document.addEventListener("pointerdown", () => this._startPosition = this._playerRef?.transform.position);
 
+            //TODO: better feeling for friction reset
+            //Friction reduction depending on something instead of constant
+            //Keep the lightnings
             document.addEventListener("pointerup", () =>
             {
-                //TODO: Calculate speed by distance
-                //Depending of the pulling distance more speed
-                const multiplier = 1.4;
+                const multiplier = -2;
                 const { x, y } = this._startPosition.asValue.substract(this._targetPos);
 
-                this._playerRef.targetPos = this._playerRef.transform.position.asValue.add({ x: Math.floor(x * multiplier), y: Math.floor(y * multiplier) });
+                this._playerRef.targetPos = this._playerRef.transform.position.asValue.add({ x: x * multiplier, y: y * multiplier });
+                this._playerRef.transform.resetVelocity();
+
                 this._playerRef.isMoving = true;
 
                 this._startPosition = null
@@ -101,11 +102,15 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
                 const targetX = diffX > this._length ? this._lastMousePos.x : mouse.x;
                 const targetY = diffY > this._length ? this._lastMousePos.y : mouse.y;
 
+                this._color = this.getSlingshotColor(diffX + diffY);
+
                 //TODO: Angle this restriction to be rounded instead of squared
                 //Probably use of atan2 to get the angle between the coordinates
                 this._lastMousePos = { x: targetX, y: targetY };
 
                 this._targetPos.setValues(targetX, targetY);
+
+                this._playerRef.transform.rotateTowards(this._targetPos);
             }
         }
 
@@ -117,7 +122,9 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
                 ctx.beginPath();
 
-                ctx.strokeStyle = 'white';
+                ctx.strokeStyle = this._color;
+                ctx.lineWidth = 10;
+                ctx.lineCap = 'round';
 
                 ctx.moveTo(x, y);
 
@@ -125,6 +132,21 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 
                 ctx.stroke();
             }
+        }
+
+        getSlingshotColor(difference)
+        {
+            //TODO: If really really necessary cache this
+            //Save the Max, Medium and Low
+            const length = this._length * 2;
+
+            const MAX_STRENGTH = length * .75;
+            const MEDIUM_STRENGTH = length * .45;
+            const LOW_STRENGTH = length * .25;
+
+            if (difference >= MAX_STRENGTH) return 'red';
+            if (difference >= MEDIUM_STRENGTH) return 'orange';
+            return difference >= LOW_STRENGTH ? 'yellow' : 'green';
         }
     }
 
