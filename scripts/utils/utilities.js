@@ -44,17 +44,19 @@ Array.prototype.deleteIndexOf = function (obj)
     if (index !== -1) this.swapDelete(index);
 }
 
-function checkForOutOfBounds({ x, y }, action)
+function doOutOfBounds({ x, y }, action)
 {
     const isOutOfBounds = x < 0 || x > winWidth || y < 0 || y > winHeight;
-    action(isOutOfBounds);
-    return isOutOfBounds;
+    if (isOutOfBounds) action();
 }
+
+const lerp = (value = 0, targetValue = 1, speed = 0.1) => value + (targetValue - value) * speed;
 
 export
 {
     getRandomColor,
     getRandomFloat,
     getRandomInteger,
-    checkForOutOfBounds
+    doOutOfBounds,
+    lerp
 }

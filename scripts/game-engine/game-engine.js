@@ -1,5 +1,5 @@
 import { ctx, DEFAULT_COLOR, SPRITES_PATH, winHeight, winWidth } from "./config.js";
-import { checkForOutOfBounds } from "../utils/utilities.js";
+import { doOutOfBounds } from "../utils/utilities.js";
 
 //Set it to pixel art
 ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
@@ -116,40 +116,55 @@ class GameObject
 class Transform
 {
     position;
+    _rotation;
+
     velocity = new Vector2();
-    rotation;
+    _friction = 1;
+    _acceleration;
 
-    color;
-    speed;
+    _color;
 
-    constructor(startPosition = new Vector2(), rotation = 0, color = DEFAULT_COLOR, speed = 1,)
+    constructor(startPosition = new Vector2(), rotation = 0, color = DEFAULT_COLOR, acceleration = 1)
     {
         this.position = startPosition;
-        this.rotation = rotation;
-        this.color = color;
-        this.speed = speed;
+        this._rotation = rotation;
+        this._color = color;
+        this._acceleration = acceleration;
     }
 
-    /**
-     * Tries to move to the selected position by a little, calculating its velocity by the speed and angle
-     * @param position target position
-     * @param speed optional speed
-     * @returns {boolean} false if out of bounds, true if completed movement
-     */
-    moveToPosition(position, speed = this.speed)
+    moveToPosition(position, acceleration = this._acceleration)
     {
         const myPosition = this.position;
 
-        this.rotation = Math.atan2(position.y - myPosition.y, position.x - myPosition.x);
+        this._rotation = Math.atan2(position.y - myPosition.y, position.x - myPosition.x);
 
-        this.velocity.setValues(Math.cos(this.rotation) * speed, Math.sin(this.rotation) * speed);
+        const { x, y } = this.velocity;
 
-        const newPosition = myPosition.asValue.add(this.velocity);
+        this.velocity.setValues((x + Math.cos(this._rotation) * acceleration) * this._friction, (y + Math.sin(this._rotation) * acceleration) * this._friction);
+        this._friction = this._friction < 0 ? 0 : this._friction - 0.01;
 
-        return checkForOutOfBounds(newPosition, isOutOfBounds =>
-        {
-            if (!isOutOfBounds) myPosition.setValues(newPosition.x, newPosition.y);
-        });
+        myPosition.add(this.velocity);
+    }
+
+    resetVelocity()
+    {
+        this._friction = 1;
+        this.velocity.setValues(1, 1);
+    }
+
+    /**
+     * Obtains the knockback target position to get away from other position
+     * @param x target position x
+     * @param y target position y
+     * @param speed
+     * @returns {Vector2} the knockback position
+     */
+    getKnockbackPositionFrom({ x, y }, speed = 1)
+    {
+        const [myX, myY] = this.position.asArray;
+        const differenceX = myX - x, differenceY = myY - y;
+
+        return new Vector2(myX + differenceX * speed, myY + differenceY * speed);
     }
 
     updateMovement()
@@ -162,6 +177,13 @@ class Transform
         ctx.translate(x, y);
         ctx.rotate(angle);
         ctx.translate(-x, -y);
+    }
+
+    rotateTowards({ x, y })
+    {
+        const myPosition = this.position;
+
+        this._rotation = Math.atan2(y - myPosition.y, x - myPosition.x);
     }
 }
 
@@ -292,7 +314,7 @@ class Entity extends GameObject
         const { x, y } = transform.position;
         const { width, height } = this._size;
 
-        ctx.fillStyle = transform.color;
+        ctx.fillStyle = transform._color;
         ctx.fillRect(x - width * .5, y - height * .5, width, height);
 
         // this.hitbox.draw(ctx);
