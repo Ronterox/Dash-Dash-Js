@@ -140,7 +140,7 @@ export class Enemy extends Entity
         let numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
         const transform = this.transform;
-        while (numberOfParticles--) new Particle(transform.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), transform.color, areTemporal);
+        while (numberOfParticles--) new Particle(transform.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), transform._color, areTemporal);
     }
 
     kill()

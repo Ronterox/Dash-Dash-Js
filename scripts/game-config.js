@@ -1,5 +1,5 @@
 import { GameObject, pauseGame, resumeGame, Vector2 } from "./game-engine/game-engine.js";
-import { AudioManager, BACKGROUND_MUSIC } from "./utils/audio-manager.js";
+import { AudioManager, BACKGROUND_MUSIC, PLAYER_MOVE_SFX } from "./utils/audio-manager.js";
 import { Enemy } from "./entities/enemy.js";
 import { getRandomFloat } from "./utils/utilities.js";
 import { mouseInput } from "./game-engine/input.js";
@@ -100,6 +100,8 @@ class Slingshot extends GameObject
             this._playerRef.isMoving = true;
 
             this._startPosition = null
+
+            AudioManager.playNewAudio(PLAYER_MOVE_SFX);
         });
     }
 

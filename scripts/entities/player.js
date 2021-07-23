@@ -1,7 +1,7 @@
 import { Entity, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { LightningTrail } from "../game-engine/particle-system.js";
 import { DEFAULT_COLOR, DEFAULT_RGB } from "../game-engine/config.js";
-import { AudioManager, PLAYER_IDLE_SFX } from "../utils/audio-manager.js";
+import { AudioManager, PLAYER_IDLE_SFX, PLAYER_MOVE_SFX } from "../utils/audio-manager.js";
 import { Bounds, doOutOfBounds, getRandomInteger } from "../utils/utilities.js";
 
 const trailSettings =
@@ -78,6 +78,8 @@ export class Player extends Entity
             const multiplier = 50;
             if (boundary === Bounds.TOP || boundary === Bounds.BOTTOM) this.targetPos.x += getRandomInteger(speed * -multiplier, speed * multiplier);
             else this.targetPos.y += getRandomInteger(speed * -multiplier, speed * multiplier);
+
+            AudioManager.playNewAudio(PLAYER_MOVE_SFX);
         });
 
         this.lightningTrailTop.addTrail(new Vector2(oldX - trailsOffset, oldY - trailsOffset), new Vector2(newX - trailsOffset, newY - trailsOffset));
