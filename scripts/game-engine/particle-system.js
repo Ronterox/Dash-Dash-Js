@@ -28,7 +28,6 @@ class Particle extends GameObject
     {
         this.transform.updateMovement();
         this.checkTemporalCondition();
-        console.log(this.transform.position)
     }
 
     draw(ctx)

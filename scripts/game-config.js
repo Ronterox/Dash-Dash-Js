@@ -3,6 +3,7 @@ import { AudioManager, BACKGROUND_MUSIC, PLAYER_MOVE_SFX } from "./utils/audio-m
 import { Enemy } from "./entities/enemy.js";
 import { getRandomFloat } from "./utils/utilities.js";
 import { mouseInput } from "./game-engine/input.js";
+import { winHeight, winWidth } from "./game-engine/config.js";
 
 function setPauseButton(enemySpawner, startSpawningEnemies)
 {
@@ -165,6 +166,8 @@ class Slingshot extends GameObject
     }
 }
 
+const SLINGSHOT_LENGTH = (winHeight + winWidth) * .3;
+
 export
 {
     setPauseButton,
@@ -174,5 +177,7 @@ export
 
     PLAYER_COLOR,
     PLAYER_ACCELERATION,
-    Slingshot
+
+    Slingshot,
+    SLINGSHOT_LENGTH
 }

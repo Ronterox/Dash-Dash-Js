@@ -1,6 +1,6 @@
 import { Player } from "./entities/player.js";
 import { startGame } from "./game-engine/game-engine.js";
-import { hideStartScreen, PLAYER_COLOR, PLAYER_ACCELERATION, setPauseButton, spawnEnemies, Slingshot } from "./game-config.js";
+import { hideStartScreen, PLAYER_COLOR, PLAYER_ACCELERATION, setPauseButton, spawnEnemies, Slingshot, SLINGSHOT_LENGTH } from "./game-config.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
 {
@@ -42,7 +42,7 @@ function setTestConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     //Creation of player
     const player = new Player(PLAYER_ACCELERATION, PLAYER_COLOR);
 
-    new Slingshot(0, 250, player);
+    new Slingshot(0, SLINGSHOT_LENGTH, player);
 }
 
 hideStartScreen();
