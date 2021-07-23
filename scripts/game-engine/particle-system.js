@@ -40,13 +40,58 @@ class Particle extends GameObject
         ctx.beginPath();
 
         ctx.globalAlpha = this.alpha;
-        ctx.fillStyle = transform.color;
+        ctx.fillStyle = transform._color;
 
         ctx.arc(x, y, this._radius, 0, 6.28);
 
         ctx.fill();
 
         ctx.restore();
+    }
+}
+
+class TriangleParticle extends GameObject
+{
+    transform;
+    _shape;
+
+    constructor(position = new Vector2(), shape = { top: 30, right: 60, left: 60 }, speed = 1, color = DEFAULT_COLOR)
+    {
+        super();
+        this.transform = new Transform(position, 0, color, speed);
+        this.transform.velocity = new Vector2(getRandomFloat(-speed, speed), getRandomFloat(-speed, speed));
+        this._shape = shape;
+    }
+
+    update()
+    {
+        this.transform.updateMovement();
+        doOutOfBounds(this.transform.position, () => this.destroy())
+    }
+
+    draw(ctx)
+    {
+        const transform = this.transform;
+        const { x, y } = transform.position;
+
+        ctx.strokeStyle = transform._color;
+
+        const oldStyle = ctx.fillStyle;
+        ctx.fillStyle = transform._color;
+
+        const { top, right, left } = this._shape;
+
+        ctx.beginPath();
+
+        ctx.moveTo(x, y);
+
+        ctx.lineTo(x + top, y + right);
+        ctx.lineTo(x + left, y);
+        ctx.lineTo(x, y);
+
+        ctx.fill();
+
+        ctx.fillStyle = oldStyle;
     }
 }
 
@@ -175,5 +220,6 @@ export
 {
     LightningLine,
     LightningTrail,
-    Particle
+    Particle,
+    TriangleParticle
 }

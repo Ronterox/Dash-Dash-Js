@@ -1,5 +1,4 @@
 import { ctx, DEFAULT_COLOR, SPRITES_PATH, winHeight, winWidth } from "./config.js";
-import { doOutOfBounds } from "../utils/utilities.js";
 
 //Set it to pixel art
 ctx.msImageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
@@ -142,6 +141,17 @@ class Transform
 
         this.velocity.setValues((x + Math.cos(this._rotation) * acceleration) * this._friction, (y + Math.sin(this._rotation) * acceleration) * this._friction);
         this._friction = this._friction < 0 ? 0 : this._friction - 0.01;
+
+        myPosition.add(this.velocity);
+    }
+
+    moveToPositionConstantSpeed(position, speed = this._acceleration)
+    {
+        const myPosition = this.position;
+
+        this._rotation = Math.atan2(position.y - myPosition.y, position.x - myPosition.x);
+
+        this.velocity.setValues(Math.cos(this._rotation) * speed, Math.sin(this._rotation) * speed);
 
         myPosition.add(this.velocity);
     }
@@ -422,10 +432,6 @@ class SpriteSheet
     //Change the current animation state of the sprite sheet
     //Save each frame position automatically for each state
     //Load normal and flipped sprite sheet version
-
-    //TODO: check which way of animating is faster
-    //The weird formula he used
-    //Your frame interval
     animate(ctx, { x, y }, sizeMultiplier = 1)
     {
         const { spriteWidth, spriteHeight } = this.spriteSize;

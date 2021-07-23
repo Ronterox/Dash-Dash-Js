@@ -7,10 +7,6 @@ class AudioManager
     static audios = {};
     static audiosPlaying = [];
 
-    //TODO: Audio looping functional
-    //First check what is wrong
-    //Add event for ending if loop play, else remove it
-
     //TODO: Add random pitch
     //Another parameter for pitch changing pitch
     //Change pitch between a negative and positive increment randomly
@@ -77,13 +73,13 @@ class AudioManager
 
 const BACKGROUND_MUSIC = AUDIOS_PATH + "zenitsu-theme.mp3";
 
-const PLAYER_WALK_SFX = MISSING_AUDIO;
 const PLAYER_IDLE_SFX = AUDIOS_PATH + "sparks.mp3";
+const PLAYER_MOVE_SFX = AUDIOS_PATH + "player_dash.mp3";
 const SLASH_SFX = AUDIOS_PATH + "slash.mp3";
 
 const ENEMY_SPAWN_SFX = AUDIOS_PATH + "spawn_growl.mp3";
 const ENEMY_SFX = AUDIOS_PATH + "monster_growl.mp3";
-const ENEMY_HIT_SFX = MISSING_AUDIO;
+const ENEMY_HIT_SFX = AUDIOS_PATH + "imp_hurt.mp3";
 const ENEMY_DEATH_SFX = AUDIOS_PATH + "imp_death.mp3";
 
 //Loading sounds
@@ -91,13 +87,13 @@ AudioManager.loadAudio(MISSING_AUDIO, MISSING_AUDIO);
 AudioManager.loadAudio(BACKGROUND_MUSIC, BACKGROUND_MUSIC);
 
 AudioManager.loadAudio(SLASH_SFX, SLASH_SFX);
-AudioManager.loadAudio(PLAYER_WALK_SFX, PLAYER_WALK_SFX);
 
 export
 {
     BACKGROUND_MUSIC,
 
     PLAYER_IDLE_SFX,
+    PLAYER_MOVE_SFX,
     SLASH_SFX,
 
     ENEMY_SPAWN_SFX,

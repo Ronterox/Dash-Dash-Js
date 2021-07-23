@@ -69,15 +69,13 @@ export class Enemy extends Entity
 
         if (this.isBeingKnockBack)
         {
-            transform.moveToPosition(this._knockBackPosition, this._knockBackForce);
-            console.log(Vector2.sqrMagnitude(this._knockBackPosition.asValue.substract(transform.position)), this._size.width)
+            transform.moveToPositionConstantSpeed(this._knockBackPosition, this._knockBackForce);
             this.isBeingKnockBack = Vector2.sqrMagnitude(this._knockBackPosition.asValue.substract(transform.position)) > this._size.width;
+            if (!this.isBeingKnockBack) transform.resetVelocity();
         }
-        else transform.moveToPosition(playerPosition);
+        else transform.moveToPositionConstantSpeed(playerPosition);
     }
 
-    //TODO: if necessary more speed, fix this use of save for shadows
-    //Check enemies on a different array and draw them there together
     //TODO: flip sprite to look at player
     //Save a flip image of the same sprite sheet and change the image when drawing (since faster than flipping canvas)
     draw(ctx)
@@ -142,7 +140,7 @@ export class Enemy extends Entity
         let numberOfParticles = numberOfParticlesPerSize < 3 ? 3 : numberOfParticlesPerSize;
 
         const transform = this.transform;
-        while (numberOfParticles--) new Particle(transform.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), transform.color, areTemporal);
+        while (numberOfParticles--) new Particle(transform.position.asValue, Math.random() * 3 + 1, getRandomInteger(3, 8), transform._color, areTemporal);
     }
 
     kill()

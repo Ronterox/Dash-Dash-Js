@@ -18,7 +18,7 @@ window.addEventListener("resize", () =>
 const AUDIOS_PATH = './media/audio/';
 const SPRITES_PATH = './media/sprites/';
 
-const DEFAULT_COLOR = 'red';
+const DEFAULT_COLOR = 'white';
 const DEFAULT_RGB = { r: 255, g: 255, b: 255 }
 
 export
