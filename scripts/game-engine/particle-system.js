@@ -28,6 +28,7 @@ class Particle extends GameObject
     {
         this.transform.updateMovement();
         this.checkTemporalCondition();
+        console.log(this.transform.position)
     }
 
     draw(ctx)
@@ -40,7 +41,7 @@ class Particle extends GameObject
         ctx.beginPath();
 
         ctx.globalAlpha = this.alpha;
-        ctx.fillStyle = transform.color;
+        ctx.fillStyle = transform._color;
 
         ctx.arc(x, y, this._radius, 0, 6.28);
 

@@ -7,10 +7,6 @@ class AudioManager
     static audios = {};
     static audiosPlaying = [];
 
-    //TODO: Audio looping functional
-    //First check what is wrong
-    //Add event for ending if loop play, else remove it
-
     //TODO: Add random pitch
     //Another parameter for pitch changing pitch
     //Change pitch between a negative and positive increment randomly

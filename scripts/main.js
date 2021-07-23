@@ -1,6 +1,6 @@
 import { Player } from "./entities/player.js";
 import { startGame } from "./game-engine/game-engine.js";
-import { hideStartScreen, PLAYER_COLOR, PLAYER_ACCELERATION, setPauseButton, spawnEnemies } from "./game-config.js";
+import { hideStartScreen, PLAYER_COLOR, PLAYER_ACCELERATION, setPauseButton, spawnEnemies, Slingshot } from "./game-config.js";
 
 function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
 {
@@ -15,6 +15,8 @@ function setGameConfig(enemiesPerWave = 1, timeBtwWaves = 2)
     let enemySpawner = { value: startSpawningEnemies() };
 
     setPauseButton(enemySpawner, startSpawningEnemies);
+
+    new Slingshot(0, 250, player);
 }
 
 document.getElementById("start-game-button").onclick = () =>

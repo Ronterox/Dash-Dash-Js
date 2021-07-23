@@ -44,10 +44,18 @@ Array.prototype.deleteIndexOf = function (obj)
     if (index !== -1) this.swapDelete(index);
 }
 
+const Bounds = { TOP: 'Top', BOTTOM: 'Bottom', RIGHT: 'Right', LEFT: 'Left' }
+
 function doOutOfBounds({ x, y }, action)
 {
-    const isOutOfBounds = x < 0 || x > winWidth || y < 0 || y > winHeight;
-    if (isOutOfBounds) action();
+    let exitBoundary;
+
+    if (x < 0) exitBoundary = Bounds.LEFT;
+    else if (x > winWidth) exitBoundary = Bounds.RIGHT;
+    else if (y < 0) exitBoundary = Bounds.TOP;
+    else if (y > winHeight) exitBoundary = Bounds.BOTTOM;
+
+    if (exitBoundary) action(exitBoundary);
 }
 
 const lerp = (value = 0, targetValue = 1, speed = 0.1) => value + (targetValue - value) * speed;
@@ -58,5 +66,7 @@ export
     getRandomFloat,
     getRandomInteger,
     doOutOfBounds,
-    lerp
+    lerp,
+
+    Bounds
 }

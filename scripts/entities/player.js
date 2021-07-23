@@ -2,7 +2,7 @@ import { Entity, Transform, Vector2 } from "../game-engine/game-engine.js";
 import { LightningTrail } from "../game-engine/particle-system.js";
 import { DEFAULT_COLOR, DEFAULT_RGB } from "../game-engine/config.js";
 import { AudioManager, PLAYER_IDLE_SFX } from "../utils/audio-manager.js";
-import { doOutOfBounds } from "../utils/utilities.js";
+import { Bounds, doOutOfBounds, getRandomInteger } from "../utils/utilities.js";
 
 const trailSettings =
     {
@@ -66,10 +66,7 @@ export class Player extends Entity
         const [oldX, oldY] = oldPos.asArray;
         const [newX, newY] = newPos.asArray;
 
-        //TODO: Obtain side of bounding leave, and randomize bouncing
-        //Enumerator: Top, Bottom, Left, Right
-        //Random Range between knockback position depending of bounding used to leave
-        doOutOfBounds(newPos, () =>
+        doOutOfBounds(newPos, boundary =>
         {
             const { x, y } = transform.velocity;
             const speed = Math.abs(x - y);
@@ -77,6 +74,10 @@ export class Player extends Entity
             transform.position.setVector(oldPos);
 
             this.targetPos = transform.getKnockbackPositionFrom(newPos, speed);
+
+            const multiplier = 50;
+            if (boundary === Bounds.TOP || boundary === Bounds.BOTTOM) this.targetPos.x += getRandomInteger(speed * -multiplier, speed * multiplier);
+            else this.targetPos.y += getRandomInteger(speed * -multiplier, speed * multiplier);
         });
 
         this.lightningTrailTop.addTrail(new Vector2(oldX - trailsOffset, oldY - trailsOffset), new Vector2(newX - trailsOffset, newY - trailsOffset));
