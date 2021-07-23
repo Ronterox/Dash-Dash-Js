@@ -33,6 +33,7 @@ export class Player extends Entity
 
         const { width, height } = this._size;
         this.hitbox.size = { width: width * 2, height: height * 2 };
+        this.hitbox.tag = 'Player';
     }
 
     awake()

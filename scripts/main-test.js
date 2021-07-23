@@ -1,5 +1,5 @@
 import { Player } from "./entities/player.js";
-import { startGame } from "./game-engine/game-engine.js";
+import { startGame, Vector2 } from "./game-engine/game-engine.js";
 import { hideStartScreen, PLAYER_COLOR, PLAYER_ACCELERATION, setPauseButton, spawnEnemies, Slingshot, SLINGSHOT_LENGTH } from "./game-config.js";
 
 function createButton(text = "Button", onClick = () => console.log("Pressed Button!"))
